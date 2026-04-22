@@ -1,19 +1,32 @@
-# Sidecar LEGADO pré-v1.2
-arquivo: null
+arquivo: lei-12737-2012.html
 tipo: A
-url_origem: https://www.planalto.gov.br/ccivil_03/_ato2011-2014/2012/lei/l12737.htm
-baixado_em: "2026-04-22"
-baixado_por: pedro.mourao
-sha256: null
-encoding_declarado_http: null
+url_origem: http://www.planalto.gov.br/ccivil_03/_ato2011-2014/2012/lei/l12737.htm
+baixado_em: "2026-04-22T16:40:00Z"
+baixado_por: "Pedro Mourão (via Cowork — retrofit v1.2 sessão 2026-04-22)"
+sha256: "010daa36187c1dc408590fc5b9f58644b2fcbcb0fb4214f9275775e708158bae"
+encoding_declarado_http: "text/html"
 encoding_real_detectado: "WINDOWS-1252"
-conversao_prevista: "já convertido — ver inbox/lei-12737-2012.md"
+conversao_prevista: "html→md via iconv -f WINDOWS-1252 -t UTF-8 + strip HTML (BeautifulSoup) — já convertido em inbox/lei-12737-2012.md; reingestão não requerida"
 idioma: ptBR
 licenca: "domínio público (Lei 9.610/98 art. 8º IV — textos de lei)"
 observacoes: >
-  legado-pre-v1.2 — binário HTML original não preservado na sessão de
-  2026-04-22 que converteu a lei para MD. MD canônico intermediário em
-  inbox/lei-12737-2012.md (4.769 B) com encoding já validado.
-  Reconstruir sha256 sob demanda se a lei for contestada: re-download
-  do Planalto com iconv -f WINDOWS-1252 -t UTF-8, comparação byte a
-  byte com MD atual via conversão reversa.
+  Lei 12.737/2012 — Lei "Carolina Dieckmann" (sanção Dilma Rousseff
+  30/11/2012, publicação DOU 03/12/2012, vigência 03/04/2013 após
+  vacatio de 120 dias). Introduz art. 154-A CP (invasão de dispositivo
+  informático) e altera art. 266 CP (interrupção de serviço de
+  informação de utilidade pública). Tamanho 11.916 B.
+
+  ENCODING: 162 bytes high-bit (1.36%); 8 bytes na faixa 0x80-0x9F
+  EXCLUSIVA de CP1252 (0x93×4 aspas-abre + 0x94×4 aspas-fecha). iconv
+  Latin-1 corromperia silenciosamente esses 8 bytes — uso obrigatório
+  de WINDOWS-1252 confirmado byte a byte.
+
+  FIDELIDADE PLANALTO — bug ordinal `<u><sup>o</sup></u>` no fecho:
+  AUSENTE. Gestão Dilma (2012). Zero ocorrências do padrão; ordinais
+  aparecem como 'º' UTF-8 real (amostra: 1º, 2º, 3º, 4º...). Data
+  point empírico novo para §Fidelidade do AGENTS.md.
+
+  RETROFIT: este sidecar substitui versão legado-pre-v1.2 (sha256:null,
+  arquivo:null) em 2026-04-22. Cadeia de custódia fechada.
+  MD canônico intermediário preservado em inbox/lei-12737-2012.md
+  (4.769 B, encoding_validated: true).

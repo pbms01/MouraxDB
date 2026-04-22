@@ -76,8 +76,18 @@ Registrar no sidecar .source.yaml: encoding_declarado_http: "ISO-8859-1"
 (o que o HTTP/meta diz) e encoding_real_detectado: "WINDOWS-1252" (o que
 file/chardet confirma). A divergência dos dois campos é parte da cadeia
 de custódia da conversão.
-Validado empiricamente em: Lei 12.737/2012, Lei 14.155/2021, Lei 12.965/2014,
-Lei 14.132/2021, Lei 14.188/2021, Lei 13.718/2018 (6 leis até 2026-04-22).
+Validado empiricamente em 6 leis com lastro byte-a-byte pelo pipeline v1.2 (o retrofit de 2026-04-22 fechou a cadeia de custódia das 3 legadas 12.737/2012, 14.155/2021 e 12.965/2014 — antes com sha256:null — e as integrou ao padrão v1.2 das 3 já nativas):
+
+| Lei | Gestão (sanção) | Tamanho (B) | Bytes 0x80–0x9F | Distribuição |
+|---|---|---|---|---|
+| 12.737/2012 (Carolina Dieckmann) | Dilma | 11.916 | 8 | 0x93×4 + 0x94×4 (aspas tipográficas) |
+| 12.965/2014 (Marco Civil) | Dilma | 119.976 | 0 | — (file(1) classifica como ISO-8859 text) |
+| 13.718/2018 (importunação sexual) | Toffoli interino | 21.142 | 0 | — |
+| 14.132/2021 (stalking) | Bolsonaro | 14.333 | 6 | aspas tipográficas |
+| 14.155/2021 (furto/fraude eletrônica) | Bolsonaro | 20.916 | 12 | 0x93×4 + 0x94×4 + 0x96×4 (inclui en-dash) |
+| 14.188/2021 (violência psicológica) | Bolsonaro | 18.263 | registrado no sidecar | — |
+
+Observação operacional: 12.965/2014 e 13.718/2018 têm ZERO bytes 0x80–0x9F — decodificariam sem corrupção sob iconv Latin-1. Mesmo assim a política v1.2 é sempre `iconv -f WINDOWS-1252`, por consistência de procedimento (elimina classe inteira de regressões quando um arquivo ambíguo aparecer no futuro).
 Aplicável a: CP, CPP, leis ordinárias, medidas provisórias, decretos do Planalto.
 Se o arquivo inteiro precisar ser reescrito via heredoc por causa do risco de
 truncagem, reescrever preservando todas as seções existentes. Verificar com
@@ -88,9 +98,11 @@ e essa variação NÃO é universal do portal — correlaciona com a gestão da
 Subchefia para Assuntos Jurídicos em cada período.
 - Forma correta (caractere U+00BA masculine ordinal indicator): "197º", "130º"
 - Forma com bug (HTML `<u><sup>o</sup></u>` sem o caractere º real): "200o", "133o"
-Confirmado empiricamente:
-- Bug presente: Lei 14.132/2021, Lei 14.155/2021, Lei 14.188/2021 (leis 2021, assinatura Bolsonaro)
-- Bug ausente: Lei 13.718/2018 (assinatura Dias Toffoli em exercício da Presidência, 24/09/2018)
+Confirmado empiricamente (base ampliada pelo retrofit v1.2 de 2026-04-22 — 2 data points novos + 1 confirmação byte-a-byte):
+- Bug presente: Lei 14.132/2021, Lei 14.155/2021, Lei 14.188/2021 (leis 2021, assinatura Bolsonaro). Na 14.155/2021 o fecho literal é "Brasília,  27  de maio de 2021; 200<u><sup>o</sup></u> da Independência e 133<u><sup>o</sup></u> da República" — 2 ocorrências verificadas byte-a-byte em 2026-04-22 (sha256 1a6be934…2d73).
+- Bug ausente: Lei 13.718/2018 (assinatura Dias Toffoli em exercício da Presidência, 24/09/2018); Lei 12.737/2012 (assinatura Dilma, 30/11/2012 — data point novo do retrofit 2026-04-22); Lei 12.965/2014 (assinatura Dilma, 23/04/2014 — data point novo do retrofit 2026-04-22). Nas três, ordinais aparecem como 'º' UTF-8 real.
+
+Hipótese em teste: o bug correlaciona com período/gestão, não com o portal como sistema. 6/6 data points atuais são consistentes com "bug introduzido no template do Planalto em 2021 (AJ-2021, gestão Bolsonaro)". Nenhum contraexemplo até o momento. Alvos para falsear: leis sancionadas em 2019–2020 (Bolsonaro pré-AJ-2021) e em 2015–2017 (Temer).
 Regra do pipeline: o extrator NUNCA "corrige" a forma ordinal — preserva
 exatamente como veio do HTML. Duplicações de artigo (ex: Marco Civil art. 12
 duplicado por MP 1.068/2021 rejeitada), erros de digitação oficiais e qualquer
