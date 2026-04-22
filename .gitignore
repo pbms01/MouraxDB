@@ -1,14 +1,60 @@
-# Sistema operacional
+# ═══════════════════════════════════════════════════════════════════
+# .gitignore — KB-PD (Knowledge Base de Prova Digital)
+# ═══════════════════════════════════════════════════════════════════
+
+# ─── Sistema operacional ───
 .DS_Store
 Thumbs.db
 desktop.ini
-# Bancos de embeddings (grandes demais para Git)
+
+# ─── Editores ───
+*.bak
+*.swp
+*.swo
+~$*
+
+# ─── Scratch / arquivos efêmeros que não devem entrar no repo ───
+testfile
+testfile.*
+test_scratch_*
+*.tmp
+*.processing
+*.log
+
+# ═══════════════════════════════════════════════════════════════════
+# KB-PD: bancos vetoriais e índices (grandes demais para Git)
+# CRÍTICO: ChromaDB, SQLite e índices DERIVADOS nunca entram no repo.
+# Eles são gerados a partir do raw/ + corpus/, ficam em paths locais.
+# Apenas metadados, configurações e prompts são versionados.
+# ═══════════════════════════════════════════════════════════════════
 *.sqlite
 *.db
 *.chroma/
 chroma_db/
-# Arquivos temporários de pipeline
-*.tmp
-*.processing
-# Manter .gitkeep
+
+# ─── Ambientes Python (Fase 1: pipeline de embeddings) ───
+__pycache__/
+*.pyc
+.venv/
+venv/
+.env
+.env.local
+
+# ─── IDE local ───
+.vscode/
+.idea/
+*.iml
+
+# ─── Outputs efêmeros do agente Cowork ───
+# Caso o agente escreva acidentalmente na raiz em vez do scratch dele.
+outputs/
+
+# ═══════════════════════════════════════════════════════════════════
+# Exceções (DEVEM ficar por último — exceções vencem padrões anteriores)
+# ═══════════════════════════════════════════════════════════════════
+
+# .gitkeep preserva diretórios vazios em raw/B-jurisprudencia/, raw/C-doutrina/,
+# raw/D-legislacao-setorial/, raw/H-literatura-tecnica/ enquanto a coleta não
+# começa. Sem esta exceção, qualquer padrão genérico que casualmente bata em
+# "*.keep" ou similar mataria a estrutura de pastas.
 !.gitkeep
