@@ -103,8 +103,18 @@
 3. Baixar Resolução CNJ 615/2025.
 4. Selecionar 2 pares dialéticos H do acervo MPRJ (Pedro escolhe).
 
+### Caminho C — executar piloto Tipo B (HC 315.220/STJ)
+Desbloqueado pelo `raw-protocol.md` v2 (commit 66c150f). Primeiro teste end-to-end do Path 1 para jurisprudência:
+1. Baixar inteiro-teor e-STJ do HC 315.220 (ICP-Brasil via `pdfsig`).
+2. Depositar em `raw/B-jurisprudencia/STJ/HC-315220/`.
+3. Produzir `.source.yaml` v1.2 estendido conforme §4.4 do raw-protocol.
+4. Rodar Etapa 0.5 (schema + SHA + ICP).
+5. `pdftotext -layout` → MD em `inbox/` com front-matter dual-layer (§4.5).
+
+Valida simultaneamente: (a) schema §4.4, (b) pipeline Path 1, (c) coleta MPRJ como `fonte_confiavel=pbm_s` quando ICP estiver ausente.
+
 ### Decisão pendente do Pedro
-Qual caminho atacar primeiro? A é estritamente necessário para o bootstrap; B é o **núcleo** do bootstrap segundo o `PLANO-INGESTAO.md` (Critério 2 — Tipo H + Tipo B carregam o vocabulário mais instável).
+Três caminhos abertos (A, B, C). Caminho C é o mais barato (1 documento, 1 commit) e valida o schema de Tipo B na prática antes de coletar RE 1.055.941/SP e outros. Prioridade sugerida: **C → A → B**.
 
 ---
 
@@ -113,11 +123,11 @@ Qual caminho atacar primeiro? A é estritamente necessário para o bootstrap; B 
 | Arquivo | Função | Última atualização |
 |---|---|---|
 | `_AGENTS/AGENTS.md` | Contrato operacional do pipeline; carregado em toda sessão Cowork | 2026-04-22 (v3 do bug ordinal) |
-| `_AGENTS/raw-protocol.md` | Schema do sidecar `.source.yaml` + fluxo de 4 etapas | (estável) |
+| `_AGENTS/raw-protocol.md` | Schema do sidecar `.source.yaml` + fluxo de 4 etapas; extensões Tipo B em §4.4/§4.5, exemplo canônico §8.2 | 2026-04-22 (v2 — commit 66c150f) |
 | `_AGENTS/schema-reference.md` | Schema canônico completo (L0, L1, L2, L3) | (estável) |
 | `_AGENTS/citacoes-canonicas.md` | Formatos de citação por source_type | (estável) |
 | `_AGENTS/hot-articles.yaml` | Camada de priorização declarativa por domínio | 2026-04-22 (v0.2) |
-| `PLANO-INGESTAO.md` | Plano completo de 5 fases | 2026-04-22 (Fase 0.5 = 10 docs) |
+| `PLANO-INGESTAO.md` | Plano completo de 5 fases | 2026-04-22 (v1.3 — extensões Tipo B) |
 | `STATUS.md` | **este arquivo** — painel de bordo | 2026-04-22 |
 | `schema/vocabulario.yaml` | Vocabulário controlado | aguardando Fase 1 |
 | `schema/golden_dataset.yaml` | Pares query-resposta para RAGAS | aguardando Fase 3 |

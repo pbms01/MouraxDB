@@ -1,7 +1,19 @@
 # PLANO-INGESTAO.md
-# KB-PD — Plano de Ingestão v1.2
+# KB-PD — Plano de Ingestão v1.3
 # Fonte: KB-PD-plano-v3.md + decisões de setup (abril 2026)
 # Versionar no Git. Atualizar a cada fase concluída.
+#
+# Changelog v1.2 → v1.3 (2026-04-22):
+# raw-protocol.md estendido para cobrir source_type=B (jurisprudência).
+# §4.4: extensões obrigatórias do sidecar (tribunal, instrumento,
+# numero_processo, relator, data_julgamento, assinatura_digital,
+# paginacao_oficial_preservada, fonte_confiavel:pbm_s). §4.5:
+# rastreabilidade dupla no front-matter do MD de inbox/ (camada 1
+# artefato + camada 2 conversão). §8.2 reescrita com HC 315.220/STJ
+# como exemplo canônico do Path 1 (PDF ICP-Brasil → MD via pdftotext).
+# Commit 66c150f. Decisões: campo fonte_confiavel=pbm_s para PDFs sem
+# ICP coletados pelo autor; STJ como tribunal-piloto; Opção A de
+# front-matter (dual-layer no próprio MD).
 #
 # Changelog v1.1 → v1.2 (2026-04-22):
 # Introduzido estágio raw/ como landing zone imutável por tipo (8 subpastas).
@@ -73,6 +85,8 @@ ingestão futura depende dela. O que é verificável é a estrutura:
       lei-14188/2021) — todos com cadeia de custódia HTTP completa
 - [x] _AGENTS/hot-articles.yaml v0.2 — camada de priorização declarativa
       sobre L0, 43 artigos hot + 3 hot_laws + 10 pareamentos transversais
+- [x] _AGENTS/raw-protocol.md v2 (commit 66c150f) — §4.4 extensões Tipo B,
+      §4.5 rastreabilidade dupla MD, §8.2 exemplo HC 315.220
 - [ ] git lfs install executado no Windows (Pedro — uma vez por máquina)
 - [ ] Etapa 0.5 propriamente dita (validação bloqueante de mojibake score,
       sha256 match e ausência de artefatos) ainda não executada sobre os
