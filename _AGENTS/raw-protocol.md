@@ -379,7 +379,7 @@ observacoes: >
 ### 8.2 PDF de acórdão STJ — Revista Eletrônica (Tipo B, PDF canônico)
 
 ```yaml
-# raw/B-jurisprudencia/hc-315220-stj.source.yaml
+# raw/B-jurisprudencia/STJ/HC-315220/hc-315220-stj.source.yaml
 arquivo: hc-315220-stj.pdf
 tipo: B
 url_origem: https://processo.stj.jus.br/...
@@ -396,11 +396,11 @@ licenca: "domínio público (decisão judicial pública — Lei 9.610/98 art. 8�
 # Extensões §4.4 — Tipo B
 tribunal: STJ
 instrumento: acordao
-numero_processo: "HC 315.220/RS (2015/0033934-5)"
+numero_processo: "HC 315.220/RS (2015/0019757-0)"
 relator: "Ministra Maria Thereza de Assis Moura"
 orgao_julgador: "Sexta Turma"
-data_julgamento: "2015-05-21"
-data_publicacao: "2015-06-02"
+data_julgamento: "2015-09-15"
+data_publicacao: "2015-10-09"
 
 assinatura_digital:
   presente: false
