@@ -139,35 +139,62 @@ A rodada de ingestão que adicionou a CF/1988 compilada e a Lei 13.964/2019 (Pac
 - **Lei 13.964/2019** — sanção em 2019 (Bolsonaro PRÉ-AJ-2021), bug PRESENTE no HTML do Planalto. Isso falseia diretamente a v1, que previa bug ausente em qualquer lei pré-2021.
 - **CF/1988 compilada** — artefato cuja última atualização no Planalto se deu em gestão posterior a 2021 (portanto sob suposta AJ-2021), bug AUSENTE. Isso falseia v1 pela direção oposta: a gestão AJ-2021 produz artefato limpo quando opera sobre compilação de texto constitucional.
 
-Tabela empírica consolidada (8 data points, 2026-04-22):
+Tabela empírica consolidada (10 data points, 2026-04-22 pós-rodada Trindade Normativa):
 
-| Artefato | Gestão (sanção/compilação) | Ano | Bug presente? |
-|---|---|---|---|
-| 12.737/2012 (Carolina Dieckmann) | Dilma | 2012 | não |
-| 12.965/2014 (Marco Civil) | Dilma | 2014 | não |
-| 13.718/2018 (importunação sexual) | Toffoli interino | 2018 | não |
-| **13.964/2019 (Pacote Anticrime)** | **Bolsonaro/Moro** | **2019** | **SIM ← contraexemplo decisivo v1** |
-| **CF/1988 compilada** | **Planalto AJ (compilação pós-2021)** | **1988/atual** | **não ← contraexemplo inverso v1** |
-| 14.132/2021 (stalking) | Bolsonaro | 2021 | sim |
-| 14.155/2021 (furto/fraude eletrônica) | Bolsonaro | 2021 | sim |
-| 14.188/2021 (violência psicológica) | Bolsonaro | 2021 | sim |
+| Artefato | Gestão (sanção/compilação) | Ano sanção | Ratio bugados / corretos | Taxa bug |
+|---|---|---|---|---|
+| 12.737/2012 (Carolina Dieckmann) | Dilma | 2012 | 0 / poucos | 0% |
+| 12.965/2014 (Marco Civil) | Dilma | 2014 | 0 / poucos | 0% |
+| 13.718/2018 (importunação sexual) | Toffoli interino | 2018 | 0 / poucos | 0% |
+| 13.964/2019 (Pacote Anticrime) | Bolsonaro/Moro | 2019 | bug presente em fecho | — |
+| CF/1988 compilada | Planalto AJ (compilação pós-2021) | 1988/atual | 0 / muitos | 0% |
+| 14.132/2021 (stalking) | Bolsonaro | 2021 | bug presente | — |
+| 14.155/2021 (furto/fraude eletrônica) | Bolsonaro | 2021 | bug presente | — |
+| 14.188/2021 (violência psicológica) | Bolsonaro | 2021 | bug presente | — |
+| **CP 2848/1940 compilado** | **Vargas/AJ-compilação atual** | **1940/atual** | **105 / 1500** | **~6,5%** |
+| **CPP 3689/1941 compilado** | **Vargas/AJ-compilação atual** | **1941/atual** | **510 / 1165** | **~30,4%** |
 
-**Hipótese v2 (formulada 2026-04-22):**
-A variável determinante NÃO é `ano_compilacao_html` nem `gestao_AJ` — é `origem_do_dispositivo`, i.e., qual editor/gabinete/template gerou o bloco HTML original do ato. Evidência convergente:
+CP e CPP são contraexemplos DECISIVOS contra a v2: são compilações editadas pela própria Subchefia AJ (mesma origem editorial atribuída à CF/1988 limpa) e ainda assim apresentam o bug — mais que isso, **coexistem** as duas formas dentro do MESMO documento, em ratios não-triviais (6,5% e 30,4% respectivamente).
 
-- Leis cuja elaboração passou por gabinetes do Executivo em período Bolsonaro (13.964/2019, 14.132–188/2021) compartilham o mesmo template com ordinal bugado no fecho, independente do ano exato.
-- Artefatos cuja editoração é feita pela própria Subchefia AJ em regime de compilação (CF/1988 consolidada) usam template limpo com U+00BA, independente da gestão vigente.
-- Leis em regime presidencial anterior (Dilma 2012/2014, Toffoli interino 2018) usam template limpo — não porque a AJ de então "não tinha o bug", mas porque o pipeline editorial de cada período produz seu próprio template.
+**Hipótese v2 (formulada e REFUTADA em 2026-04-22):**
+"A variável determinante é `origem_do_dispositivo` (ramo editorial) — atos sancionados em gabinete presidencial de período Bolsonaro têm template bugado; compilações AJ têm template limpo."
 
-A v2 prevê: variação observável NÃO é função do ano de publicação HTML, e sim do ramo editorial que montou o bloco (ato sancionado vs. texto compilado; gabinete presidencial de origem). Dois atos do mesmo ano podem divergir se vierem de ramos editoriais diferentes.
+**Refutação da v2 (rodada Trindade Normativa, 2026-04-22):**
+A coleta de CP, CPP e CF na mesma rodada produziu três data points que falseiam a v2 simultaneamente:
+- **CP/1940 compilado**: editoração AJ atual, mas tem ~6,5% de ordinais bugados.
+- **CPP/1941 compilado**: editoração AJ atual, mas tem ~30,4% de ordinais bugados.
+- **CF/1988 compilado**: editoração AJ atual, sem bug.
 
-**Alvos de falseamento da v2 (rodadas futuras):**
-1. MP assinada por Bolsonaro em 2019–2020 mas convertida em lei via Casa Civil com editoração AJ — se bug ausente, reforça v2 (origem editorial importa mais que assinatura).
-2. Decreto de 2021 sancionado diretamente do Palácio do Planalto sem passagem pela AJ de compilação — se bug presente, reforça v2.
-3. Lei 13.105/2015 (CPC) em sua versão compilada — se bug ausente apesar de 2015, consistente com v2 (compilação AJ = template limpo).
-4. Republicação/retificação de 14.155/2021 (se existir em DOU posterior) — se bug desaparece na retificação, reforça v2 (ramo editorial diferente no re-processamento).
+Se `ramo_editorial = AJ-compilação` determinasse `template = limpo`, os três deveriam estar limpos. A coexistência interna no CP e no CPP refuta a predição de que cada artefato tem UM template — há dois templates convivendo no mesmo arquivo.
 
-Regra do pipeline (inalterada pela refutação): o extrator NUNCA "corrige" a forma ordinal — preserva exatamente como veio do HTML. Duplicações de artigo (ex: Marco Civil art. 12 duplicado por MP 1.068/2021 rejeitada), erros de digitação oficiais e qualquer outra "anomalia" do Planalto também são preservados byte a byte na Etapa 1. A política de fidelidade está acima da política de limpeza: qualquer correção é decisão humana editorial a ser feita em etapa posterior, nunca no pipeline automatizado. A hipótese explicativa pode mudar; a regra de preservação, não.
+**Hipótese v3 (formulada 2026-04-22):**
+A presença do bug NÃO é binária por documento — é **estratificada por bloco editorial dentro do documento**. Cada inserção/alteração legislativa subsequente carrega o template em uso no momento da sua incorporação ao texto consolidado. O documento compilado é, portanto, um "fóssil estratigráfico" de templates editoriais sucessivos.
+
+A taxa de bug em um documento compilado seria função aproximada de:
+
+  taxa_bug ≈ f(idade_do_diploma_base × densidade_de_alteracoes_acumuladas)
+
+Predições da v3:
+1. Documentos compilados antigos com muitas alterações pulverizadas devem ter alta heterogeneidade interna (CPP confirma: 1941, alterado dezenas de vezes desde Lei 13.964/2019, 30,4% bug).
+2. Documentos compilados antigos com alterações mais episódicas e estruturadas devem ter heterogeneidade média (CP confirma: 1940, mas com Reforma da Parte Geral 1984 como bloco coeso, 6,5% bug).
+3. Documentos compilados modernos cujas alterações se dão por instrumentos editorialmente uniformes (Emendas Constitucionais sequenciadas e processadas em bloco) devem ter heterogeneidade baixa ou nula (CF confirma: 1988 + ECs numeradas, 0%).
+4. Leis curtas autônomas (não compiladas, sem incorporação de alterações posteriores) devem refletir homogeneamente o template do momento da sanção (Dilma 2012/2014, Toffoli 2018, Bolsonaro 2019/2021 — todas confirmam dentro da sua época).
+
+**Alvos de falseamento da v3 (rodadas futuras):**
+1. Lei 13.105/2015 (CPC) compilado — diploma intermediário, várias alterações desde 2015. v3 prevê heterogeneidade ENTRE 0% e 6,5% (provavelmente 1–3%). Se aparecer sem bug ou com bug muito alto (>10%), v3 enfraquece.
+2. CLT compilada (1943, com milhares de alterações ao longo de oito décadas) — v3 prevê heterogeneidade ALTA, possivelmente acima do CPP. Se vier sem bug ou com taxa muito baixa, refuta.
+3. Decreto compilado pré-2000 que tenha sofrido apenas uma ou duas atualizações — v3 prevê heterogeneidade muito baixa. Se vier alta, refuta.
+4. Republicação integral de qualquer diploma após 2024 (DOU re-edição completa, não emenda incremental) — v3 prevê homogeneização para o template AJ corrente. Se a heterogeneidade persistir, refuta.
+5. Comparação intra-CP por época de inserção do dispositivo — se a Reforma 1984 (Parte Geral) tiver taxa diferente dos artigos de 2021 (147-A, 147-B), v3 ganha resolução estratigráfica direta. Análise pendente.
+
+**Status epistêmico atual (2026-04-22):**
+- v1 (ano≥2021 ⇔ bug) — REFUTADA.
+- v2 (ramo editorial determina template) — REFUTADA.
+- v3 (estratificação por bloco editorial; ratio cresce com idade × alterações) — ATIVA, com 10 data points consistentes mas pendente de testes adversariais (alvos 1–5 acima).
+
+A v3 é mais frágil que v1/v2 no sentido de ser uma predição contínua (taxa esperada) ao invés de binária (bug presente/ausente), o que torna o falseamento mais delicado — uma rodada futura precisa medir a taxa exata e comparar com a faixa prevista, não só "tem bug ou não".
+
+Regra do pipeline (inalterada por todas as refutações): o extrator NUNCA "corrige" a forma ordinal — preserva exatamente como veio do HTML. Duplicações de artigo (ex: Marco Civil art. 12 duplicado por MP 1.068/2021 rejeitada), erros de digitação oficiais e qualquer outra "anomalia" do Planalto também são preservados byte a byte na Etapa 1. A política de fidelidade está acima da política de limpeza: qualquer correção é decisão humana editorial a ser feita em etapa posterior, nunca no pipeline automatizado. A hipótese explicativa pode mudar — e mudou três vezes em uma única semana; a regra de preservação, não.
 ## REFERÊNCIAS INTERNAS
 - Protocolo da landing zone raw/ (sidecar .source.yaml + pipeline): _AGENTS\raw-protocol.md
 - Schema canônico completo: _AGENTS\schema-reference.md
