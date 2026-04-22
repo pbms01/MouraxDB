@@ -1,22 +1,44 @@
-# Sidecar LEGADO pré-v1.2
-arquivo: null
+arquivo: lei-12965-2014.html
 tipo: A
-url_origem: https://www.planalto.gov.br/ccivil_03/_ato2011-2014/2014/lei/l12965.htm
-baixado_em: "2026-04-22"
-baixado_por: pedro.mourao
-sha256: null
-encoding_declarado_http: null
+url_origem: http://www.planalto.gov.br/ccivil_03/_ato2011-2014/2014/lei/l12965.htm
+baixado_em: "2026-04-22T16:40:00Z"
+baixado_por: "Pedro Mourão (via Cowork — retrofit v1.2 sessão 2026-04-22)"
+sha256: "88299a97bf080d47d71339172ef9e5ef04450827ea46dd36369aab4b3c9a666b"
+encoding_declarado_http: "text/html"
 encoding_real_detectado: "WINDOWS-1252"
-conversao_prevista: "já convertido — ver inbox/lei-12965-2014.md"
+conversao_prevista: "html→md via iconv -f WINDOWS-1252 -t UTF-8 + strip HTML (BeautifulSoup) — já convertido em inbox/lei-12965-2014.md; reingestão não requerida"
 idioma: ptBR
 licenca: "domínio público (Lei 9.610/98 art. 8º IV — textos de lei)"
 observacoes: >
-  legado-pre-v1.2 — binário HTML original não preservado na sessão de
-  2026-04-22. MD canônico intermediário em inbox/lei-12965-2014.md
-  (47.333 B). Peculiaridades preservadas por fidelidade: art. 12 e
+  Lei 12.965/2014 — Marco Civil da Internet (sanção Dilma Rousseff
+  23/04/2014, publicação DOU 24/04/2014, vigência 60 dias após). Lei
+  cardinal do direito digital brasileiro: define princípios, direitos
+  e garantias no uso da Internet; institui regimes de guarda de
+  registros de conexão (art. 13) e de acesso a aplicações (art. 15);
+  regime de responsabilidade de provedores (arts. 18-21). Tamanho
+  119.976 B — é o documento Tipo A mais longo já depositado em raw/.
+
+  ENCODING: 1.851 bytes high-bit (1.54%); ZERO bytes na faixa 0x80-0x9F
+  exclusiva de CP1252 — mesmo perfil da Lei 13.718/2018. Neste arquivo
+  específico iconv Latin-1 funcionaria sem corromper, mas a política
+  v1.2 do projeto é SEMPRE usar WINDOWS-1252 para qualquer ato do
+  Planalto, independentemente da ausência de bytes distintivos. `file`
+  classifica como ISO-8859 text (consistente com a ausência de bytes
+  0x80-0x9F).
+
+  FIDELIDADE PLANALTO — bug ordinal `<u><sup>o</sup></u>` no fecho:
+  AUSENTE. Gestão Dilma (2014). Zero ocorrências do padrão; ordinais
+  aparecem como 'º' UTF-8 real. Data point empírico novo para
+  §Fidelidade do AGENTS.md.
+
+  PECULIARIDADES JÁ TRATADAS no inbox/lei-12965-2014.md: art. 12 e
   incisos VII/VIII do art. 5º duplicados por MP 1.068/2021 (rejeitada);
   arts. 8º-A/B/C/D e 28-A entraram como status:superado e
-  valido_ate:2021-10-27 por efeito da rejeição da MP. Art. 19 com
-  eficácia condicionada pelo STF (ADI 6.031 + RE 1.037.396 — par
-  obrigatório para ingestão como Tipo B no bootstrap).
-  Reconstruir sha256 sob demanda.
+  valido_ate:2021-10-27 por efeito da rejeição. Art. 19 com eficácia
+  condicionada pelo STF (ADI 6.031 + RE 1.037.396 — par obrigatório
+  para ingestão como Tipo B no bootstrap).
+
+  RETROFIT: este sidecar substitui versão legado-pre-v1.2 (sha256:null,
+  arquivo:null) em 2026-04-22. Cadeia de custódia fechada.
+  MD canônico intermediário preservado em inbox/lei-12965-2014.md
+  (47.333 B, encoding_validated: true).

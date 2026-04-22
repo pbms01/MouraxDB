@@ -1,18 +1,35 @@
-# Sidecar LEGADO pré-v1.2
-arquivo: null
+arquivo: lei-14155-2021.html
 tipo: A
-url_origem: https://www.planalto.gov.br/ccivil_03/_ato2019-2022/2021/lei/L14155.htm
-baixado_em: "2026-04-22"
-baixado_por: pedro.mourao
-sha256: null
-encoding_declarado_http: null
+url_origem: http://www.planalto.gov.br/ccivil_03/_Ato2019-2022/2021/Lei/L14155.htm
+baixado_em: "2026-04-22T16:40:00Z"
+baixado_por: "Pedro Mourão (via Cowork — retrofit v1.2 sessão 2026-04-22)"
+sha256: "1a6be93491eae4ddab510e70b4c3840582a6bfee37ad64b4d0662ea463fd2d73"
+encoding_declarado_http: "text/html"
 encoding_real_detectado: "WINDOWS-1252"
-conversao_prevista: "já convertido — ver inbox/lei-14155-2021.md"
+conversao_prevista: "html→md via iconv -f WINDOWS-1252 -t UTF-8 + strip HTML (BeautifulSoup) — já convertido em inbox/lei-14155-2021.md; reingestão não requerida"
 idioma: ptBR
 licenca: "domínio público (Lei 9.610/98 art. 8º IV — textos de lei)"
 observacoes: >
-  legado-pre-v1.2 — binário HTML original não preservado na sessão de
-  2026-04-22. MD canônico intermediário em inbox/lei-14155-2021.md
-  (6.008 B). Preserva bugs de digitação do Planalto ("200o" e "133o"
-  em referências aos arts. 154-A e 171-A do CP) por disciplina de
-  fidelidade (AGENTS.md §Regras). Reconstruir sha256 sob demanda.
+  Lei 14.155/2021 (sanção Jair Bolsonaro 27/05/2021, publicação DOU
+  28/05/2021). Altera: (i) art. 155 §4º-B CP — furto qualificado por
+  fraude mediante dispositivo eletrônico ou informático; (ii) art. 171
+  §2º-A CP — estelionato por meio eletrônico; (iii) art. 70 CPP — foro
+  do domicílio da vítima no estelionato. Tamanho 20.916 B.
+
+  ENCODING: 152 bytes high-bit (0.73%); 12 bytes na faixa 0x80-0x9F
+  EXCLUSIVA de CP1252 (0x93×4 aspas-abre + 0x94×4 aspas-fecha + 0x96×4
+  en-dash). iconv Latin-1 corromperia silenciosamente — uso obrigatório
+  de WINDOWS-1252 confirmado byte a byte.
+
+  FIDELIDADE PLANALTO — bug ordinal `<u><sup>o</sup></u>` no fecho:
+  PRESENTE, 2 ocorrências. Literal do fecho: "Brasília,  27  de maio
+  de 2021; 200<u><sup>o</sup></u> da Independência e
+  133<u><sup>o</sup></u> da República." Gestão Bolsonaro/AJ 2021.
+  Primeira verificação byte-a-byte do bug nesta lei pelo pipeline v1.2
+  — confirma o que o inbox/ legado já indicava.
+
+  RETROFIT: este sidecar substitui versão legado-pre-v1.2 (sha256:null,
+  arquivo:null) em 2026-04-22. Cadeia de custódia fechada.
+  MD canônico intermediário preservado em inbox/lei-14155-2021.md
+  (6.008 B, encoding_validated: true) com preservação dos bugs "200o"
+  e "133o" por disciplina de fidelidade.
