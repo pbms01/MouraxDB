@@ -129,6 +129,120 @@ Texto livre descrevendo a etapa 1 prevista. Valores típicos:
 - `xml→md via xslt lexml-ato-normativo`
 - `md (nativo) — sem conversão, só validação de front-matter`
 
+
+### 4.4 Extensões por source_type
+
+Alguns tipos de documento carregam campos de custódia que não fazem sentido
+para outros. Esta seção define os campos **adicionais** (opcionais para A/C/E,
+**obrigatórios** para B) que o sidecar deve conter para cada `source_type`.
+
+#### Tipo B — Jurisprudência (PDF como fonte canônica)
+
+Campos adicionais obrigatórios quando `tipo: B` e o formato é PDF:
+
+```yaml
+tribunal: <STF|STJ|TRF1|TRF2|TRF3|TRF4|TRF5|TJ-UF|TST|...>
+# determina qual perfil de segmentação aplicar na Etapa 1
+# (regex de EMENTA/ACÓRDÃO/RELATÓRIO/VOTO varia por tribunal)
+
+instrumento: <acordao|decisao_monocratica|despacho|sumula|tema_repetitivo>
+numero_processo: <número oficial com formatação do tribunal>
+relator: <nome do relator/a>
+orgao_julgador: <ex: "Sexta Turma", "Plenário", "Pleno">
+data_julgamento: <YYYY-MM-DD | null se decisão monocrática>
+data_publicacao: <YYYY-MM-DD | null>
+
+assinatura_digital:
+  presente: <true|false>           # detectado via `pdfsig`
+  formato: <ICP-Brasil|Revista_Eletronica_STJ|outros|sem_assinatura>
+  # "Revista_Eletronica_STJ" = PDF sem ICP-Brasil mas com cabeçalho
+  # institucional do tribunal (caso do HC 315.220)
+  certificados: <lista de signatários com emissor e validade | null>
+
+paginacao_oficial_preservada: <true|false>
+# true quando o PDF mantém numeração "fl. N" referenciável em peças;
+# false quando é renderização sem paginação oficial
+
+fonte_confiavel: <pbm_s|null>
+# quando o PDF foi obtido diretamente pelo autor no portal oficial
+# e a ausência de assinatura ICP-Brasil é compensada pela cadeia de
+# custódia do próprio depositário (registrar em observacoes: data,
+# hora, portal específico, tribunal, sistema de autenticação usado)
+```
+
+**Perfis de segmentação disponíveis na Etapa 1:**
+
+Inicia com `STJ` (piloto HC 315.220). Novos perfis (STF, TRF2, TJ-UF
+etc.) são adicionados conforme cada tipologia receber seu primeiro
+depósito. A escolha do perfil é determinada pelo campo `tribunal` do
+sidecar.
+
+Justificativa dos campos:
+
+- `tribunal` parametriza o segmentador. Sem este campo, a Etapa 1 não tem
+  como escolher o regex correto (STF e STJ compartilham estrutura, mas
+  TRFs variam muito entre si e entre relatores).
+- `assinatura_digital` é **a** prova de custódia em PDF. Registrar no
+  depósito evita ter de re-rodar `pdfsig` toda vez que alguém quiser
+  verificar a custódia.
+- `paginacao_oficial_preservada` determina se o MD pode citar `fl. N` ou
+  se só pode citar offsets textuais.
+- `fonte_confiavel: pbm_s` documenta que, para PDFs sem ICP-Brasil
+  (ex: Revista Eletrônica STJ), a custódia é ancorada na coleta pelo
+  próprio autor em portal autenticado. Não é equivalente a ICP-Brasil,
+  mas é um grau de confiança documentado e auditável.
+
+#### Tipos A, C, D, E, F, G, H
+
+Por enquanto seguem só com o schema de §4. Extensões específicas serão
+incorporadas quando cada tipo receber seu primeiro depósito.
+
+### 4.5 Rastreabilidade dupla no front-matter do MD (inbox/)
+
+Para documentos Tipo B (e quaisquer outros convertidos de PDF), o MD em
+`inbox/<id>.md` carrega **duas** camadas de rastreabilidade no front-matter:
+
+**Camada 1 — artefato original** (replicada do sidecar, para o MD ser
+autossuficiente):
+
+```yaml
+raw_arquivo: <nome do PDF em raw/>
+raw_sha256: <hash do PDF>
+raw_bytes: <tamanho em bytes>
+raw_url: <URL do portal oficial>
+raw_baixado_em: <ISO-8601>
+raw_assinatura_icp: <true|false>
+```
+
+**Camada 2 — conversão reproduzível** (nova para Tipo B):
+
+```yaml
+conversor: "pdftotext"
+conversor_versao: <output de `pdftotext -v` truncado>
+# ex: "poppler 23.04.0"
+conversor_flags: "-layout -enc UTF-8"
+segmentador_script: "scripts/segmenta_acordao.py"
+segmentador_sha: <git commit hash curto | null durante bootstrap>
+conversao_rodada_em: <ISO-8601 do momento da conversão>
+md_sha256: <hash do próprio MD, calculado após escrita>
+```
+
+**Nota bootstrap:** `segmentador_sha: null` é aceito enquanto o script
+`segmenta_acordao.py` ainda não existir. Quando o script for criado,
+documentos Tipo B convertidos na fase de bootstrap devem ser
+reconvertidos e ter o campo preenchido.
+
+Justificativa: `pdftotext` **não é determinístico entre versões do
+Poppler**. Um upgrade pode mudar a saída. Sem registro da versão, a
+promessa de reproduzibilidade da conversão falha se alguém contestar uma
+citação anos depois. Registrar `conversor_versao` + `segmentador_sha`
+permite reconstruir exatamente o mesmo MD a partir do mesmo PDF a
+qualquer momento.
+
+`md_sha256` permite detectar edição manual não autorizada do MD em
+`inbox/` (princípio de fidelidade: se o MD foi editado após a conversão,
+o hash diverge e a Etapa 2 bloqueia).
+
 ---
 
 ## 5. Múltiplos formatos do mesmo documento
@@ -262,26 +376,50 @@ observacoes: >
   permanente AGENTS.md §Encoding.
 ```
 
-### 8.2 PDF assinado de acórdão STF (Tipo B, PDF canônico)
+### 8.2 PDF de acórdão STJ — Revista Eletrônica (Tipo B, PDF canônico)
 
 ```yaml
-# raw/B-jurisprudencia/re-1037396-tema987-stf.source.yaml
-arquivo: re-1037396-tema987-stf.pdf
+# raw/B-jurisprudencia/hc-315220-stj.source.yaml
+arquivo: hc-315220-stj.pdf
 tipo: B
-url_origem: https://portal.stf.jus.br/processos/downloadPeca.asp?id=...
+url_origem: https://processo.stj.jus.br/...
 baixado_em: "2026-04-22T14:12:00-03:00"
 baixado_por: pedro.mourao
-sha256: a12b3c4d5e6f7081a2b3c4d5e6f70819a0b1c2d3e4f5061728394a5b6c7d8e9f
+sha256: e85bd95c...<hash completo>
 encoding_declarado_http: null
-encoding_real_detectado: null       # PDF não aplica
-conversao_prevista: "pdf→md via pdftotext -layout"
-paginas: 487
+encoding_real_detectado: null          # PDF — não aplica
+conversao_prevista: "pdf→md via pdftotext -layout + segmenta_acordao.py (perfil STJ)"
+paginas: 58
 idioma: ptBR
-licenca: "domínio público (decisão judicial pública)"
+licenca: "domínio público (decisão judicial pública — Lei 9.610/98 art. 8º IV)"
+
+# Extensões §4.4 — Tipo B
+tribunal: STJ
+instrumento: acordao
+numero_processo: "HC 315.220/RS (2015/0033934-5)"
+relator: "Ministra Maria Thereza de Assis Moura"
+orgao_julgador: "Sexta Turma"
+data_julgamento: "2015-05-21"
+data_publicacao: "2015-06-02"
+
+assinatura_digital:
+  presente: false
+  formato: Revista_Eletronica_STJ
+  certificados: null
+
+paginacao_oficial_preservada: true     # "fl. 3" etc. citáveis
+
+fonte_confiavel: pbm_s
+
 observacoes: >
-  PDF assinado digitalmente pelo STF — paginação oficial preservada.
-  Fonte canônica = PDF (HTML do portal é renderização parcial).
-  Verificar assinatura digital com `pdfsig` antes da Etapa 1.
+  PDF obtido via Revista Eletrônica de Jurisprudência do STJ — produtor
+  wPDF, autor "Superior Tribunal de Justiça". Não carrega ICP-Brasil
+  (diferente de inteiro-teor via e-STJ). Custódia ancorada em coleta
+  pelo próprio autor no portal oficial do STJ em 2026-04-22. Rodapé
+  institucional "Documento: 1406511 - Inteiro Teor do Acórdão" em
+  todas as 58 páginas — remover na Etapa 1 via regex. Ementa aparece
+  duas vezes no PDF (p.1 e p.5) — propriedade do documento, não
+  artefato do conversor; preservar no MD.
 ```
 
 ### 8.3 Legado pré-v1.2 (exceção com sha256: null)
