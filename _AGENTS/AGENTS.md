@@ -54,6 +54,19 @@ As aspas simples em 'NOME_EOF' suprimem expansão de variáveis — obrigatório
 contém $, \, backticks ou qualquer marcação que bash interprete como expansão.
 Após escrita: verificar tamanho com wc -c e confirmar que bate com o esperado antes de prosseguir.
 Aplicável a: todos os arquivos .md, .yaml e .txt do pipeline com conteúdo jurídico em português.
+### Encoding de atos normativos do Planalto (planalto.gov.br)
+O portal Planalto serve HTML em Windows-1252 (CP1252), não ISO-8859-1.
+A diferença é crítica: bytes 0x80–0x9F existem no CP1252 mas não no Latin-1.
+Caracteres afetados: aspas tipográficas “” (0x93/0x94), en-dash – (0x96),
+elipse … (0x85). Com -f ISO-8859-1 esses bytes são convertidos silenciosamente
+para símbolos incorretos sem abortar — perda invisível e sem flag de erro.
+Regra permanente: usar SEMPRE iconv -f WINDOWS-1252 -t UTF-8 para qualquer
+ato do Planalto, independentemente do que o meta charset declare.
+Validado empiricamente em: Lei 12.737/2012, Lei 14.155/2021, Lei 12.965/2014.
+Aplicável a: CP, CPP, leis ordinárias, medidas provisórias, decretos do Planalto.
+Se o arquivo inteiro precisar ser reescrito via heredoc por causa do risco de
+truncagem, reescrever preservando todas as seções existentes. Verificar com
+wc -c antes e depois — o arquivo deve crescer, nunca diminuir.
 ## REFERÊNCIAS INTERNAS
 - Schema canônico completo: _AGENTS\schema-reference.md
 - Formatos de citação por tipo: _AGENTS\citacoes-canonicas.md
