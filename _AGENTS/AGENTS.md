@@ -93,6 +93,52 @@ Três componentes essenciais e não substituíveis:
 Validado empiricamente no retrofit de `commit-rodada-cf-lei13964.ps1` (2026-04-22): com o padrão canônico aplicado a todos os 24 `git add`, o staging completou sem aborto e os warnings de CRLF passaram a ser ignorados como ruído informativo esperado (o repositório KB-PD armazena com autocrlf=true em Windows, portanto CRLF→LF no objeto é comportamento correto, não falha).
 
 Aplicável a: todos os scripts .ps1 que invocam git add/commit/push/rm no pipeline (commit-rodada-*.ps1, reingest-*.ps1, retrofit-*.ps1). NUNCA usar `git ... 2>&1 | Out-Null` em PS 5.1 com Stop — mesmo que pareça funcionar no primeiro arquivo, quebrará no primeiro warning.
+### Mensagens de commit em PowerShell 5.1 -- argument splitting com `git commit -m`
+**Política aplicada em todos os scripts .ps1 do pipeline KB-PD.**
+
+Em PowerShell 5.1, passar mensagem estruturada diretamente via `-m $msg` é instável quando a mensagem contém hífen (`-`), parênteses (`(` `)`), setas (`->`) ou travessão. Esses caracteres são interpretados pelo parser de comandos nativos do PS como separadores de argumento, fragmentando a string antes de chegar ao git.
+
+```powershell
+git commit -m $msg    # PADRÃO BUGADO quando $msg tem -, (, ), ->, travessão
+```
+
+Sintoma observado em 2026-04-22 no commit da Fase 1 do fix de `raw-protocol.md` item 8.2: mensagem contendo `HC-315220`, `(pbm_s)` e travessão quebrou com erro enganoso:
+
+```
+fatal: pathspec '15' did not match any file(s) known to git
+```
+
+O número 15 veio de fragmento de `HC-315220` interpretado como pathspec posicional. Pior: o `throw` dentro do script não abortou a pipeline e o script imprimiu `[OK] Fase 1 commitada` enquanto o commit nunca entrou no histórico -- confirmado via `git log` subsequente.
+
+Regra permanente (padrão canônico para qualquer `git commit` estruturado em .ps1):
+
+```powershell
+# 1. Escreve mensagem em arquivo temporário -- UTF-8 SEM BOM
+$msgFile = Join-Path $env:TEMP "gitmsg-$(Get-Random).txt"
+[System.IO.File]::WriteAllText($msgFile, $msg, [System.Text.UTF8Encoding]::new($false))
+
+# 2. Commit por arquivo -- imune a argument splitting
+$null = & git commit -F $msgFile 2>&1
+if ($LASTEXITCODE -ne 0) {
+    Write-Error "git commit falhou (exit $LASTEXITCODE)"
+    exit $LASTEXITCODE
+}
+
+# 3. Limpa temp
+Remove-Item $msgFile -Force
+```
+
+Três componentes essenciais:
+1. **`git commit -F <path>`** em vez de `-m $msg` -- o path é string ASCII segura (do `$env:TEMP`), não sofre splitting. O conteúdo da mensagem fica blindado dentro do arquivo.
+2. **`[System.IO.File]::WriteAllText(..., [System.Text.UTF8Encoding]::new($false))`** -- garante UTF-8 **sem BOM**. `Set-Content -Encoding UTF8` do PS 5.1 emite BOM, e git interpreta BOM como parte da mensagem (caracteres invisíveis no `git log`).
+3. **Check explícito de `$LASTEXITCODE`** -- o `throw` pode não propagar corretamente sob `ErrorActionPreference = Stop` combinado com subshell via `& git`. O check é a única forma confiável de detectar falha real.
+
+Profilaxia adicional: evitar caracteres tipográficos (seção, seta, travessão, aspas curvas) em mensagens de commit sempre que possível -- trocar por ASCII equivalentes. Reduz superfície de problema mesmo com `-F` aplicado e preserva legibilidade em terminais sem UTF-8 completo.
+
+Validado empiricamente na recuperação do commit `6927e9a` em 2026-04-22: após migrar para o padrão `-F tempfile`, a mensagem estruturada completou sem fragmentação.
+
+Aplicável a: todos os scripts .ps1 que invocam `git commit` com mensagem contendo os caracteres problemáticos listados. NUNCA usar `git commit -m $msg` em PS 5.1 quando `$msg` pode conter esses caracteres.
+
 ### Encoding de atos normativos do Planalto (planalto.gov.br)
 **Política aplicada na Etapa 1 do pipeline** (conversão raw/ → inbox/).
 O portal Planalto serve HTML em Windows-1252 (CP1252), não ISO-8859-1.
