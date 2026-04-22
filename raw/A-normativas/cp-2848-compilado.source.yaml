@@ -1,0 +1,113 @@
+# Sidecar v1.2 — Decreto-Lei 2.848/1940 (Código Penal compilado)
+# Gerado pela Etapa 0 do pipeline KB-PD — rodada "Trindade Normativa"
+# Pedro Mourão — MPRJ
+
+arquivo: cp-2848-compilado.html
+tipo: A                                   # normativa
+url_origem: https://www.planalto.gov.br/ccivil_03/decreto-lei/del2848compilado.htm
+baixado_em: "2026-04-22T19:49:50Z"
+baixado_por: pedro.mourao
+user_agent: "Mozilla/5.0 (KBPD-pipeline-v1.2)"
+
+# Integridade
+sha256: "224467a3a9de2265104e4017d849c5a7a4624a811bf0487c2bf17868c3f17c6b"
+bytes: 659965
+
+# Encoding
+encoding_declarado_http: null              # servidor não declara Content-Type charset
+encoding_declarado_meta: null              # HTML não tem <meta charset>
+encoding_real_detectado: "WINDOWS-1252"    # política Planalto (file(1) detecta ISO-8859; tratamos como CP1252)
+conversao_prevista:
+  de: "WINDOWS-1252"
+  para: "UTF-8"
+  ferramenta: "iconv -f WINDOWS-1252 -t UTF-8"
+
+# Metadados editoriais
+idioma: pt-BR
+licenca: "Domínio público (Lei 9.610/1998, art. 8º, IV — textos oficiais de órgãos públicos)"
+natureza: "texto compilado consolidado pelo Planalto, com todas as alterações até 2026-04-10 (Last-Modified)"
+vigencia: "ativa (com alterações posteriores incorporadas)"
+
+# Resposta HTTP — cadeia de custódia da requisição
+http_response:
+  content_type: "text/html"
+  content_length: 659965
+  last_modified: "Fri, 10 Apr 2026 09:50:11 GMT"
+  etag: "b52d396ccfc8dc1:0"
+  user_agent_aceito: true               # contradiz nota CF: User-Agent não-browser ACEITO em 2026-04-22
+
+# Diagnóstico AJ (bug ordinal <u><sup>o</sup></u>) — REFINAMENTO DA HIPÓTESE
+# Hipóteses anteriores (AGENTS.md §132-170):
+#   v1 (REFUTADA): bug ⇔ ano ≥ 2021
+#   v2 (REFUTADA por este achado): bug ⇔ "ramo editorial" (Bolsonaro vs. AJ-compilação)
+# Achado deste arquivo: COEXISTÊNCIA de templates dentro do mesmo documento
+diagnostico_aj2021:
+  bytes_0x80_0x9F: 49
+  bytes_0x80_0x9F_distribuicao:
+    - byte: "0x96"
+      char_cp1252: "– (en-dash)"
+      ocorrencias: 48
+    - byte: "0x94"
+      char_cp1252: "\" (right double quotation mark)"
+      ocorrencias: 1
+  bug_ordinal_u_sup_count: 51              # <u><sup>o</sup></u>
+  bug_ordinal_sup_u_count: 54              # <sup><u>o</u></sup> (variação inversa)
+  ordinal_correto_U00BA: 1500              # º como caractere literal CP1252
+  resultado: |
+    COEXISTÊNCIA — predomínio do U+00BA correto (~93%) com ~7% de
+    instâncias bugadas DISTRIBUÍDAS ENTRE DOIS PADRÕES distintos.
+    REFUTA v2 como predição binária: AJ não usa template uniformemente
+    limpo em códigos antigos. Sugere v3: bug é injetado localmente
+    quando bloco editorial novo é inserido no corpo de código antigo
+    (cada lei alteradora pode trazer seu próprio template).
+
+# Conteúdo
+possui_ordinais_textuais: true
+marcadores_normativos_relevantes:
+  - "Histórico legislativo inline com 'Redação dada pela Lei nº X'"
+  - "Dispositivos inseridos pelas leis 12.737/2012, 14.155/2021, 13.718/2018, 14.132/2021, 14.188/2021 (todas em raw/A-normativas/)"
+  - "Múltiplas redações superadas marcadas inline (caso de validação Critério 3a do PLANO-INGESTAO)"
+
+observacoes: |
+  Arquivo HTML bruto do Planalto na rota /ccivil_03/decreto-lei/del2848compilado.htm.
+  Tamanho 659.965 bytes (~660 KB) — compilação integral do CP atualizada até 2026-04-10.
+
+  COMPORTAMENTO HTTP — DIVERGÊNCIA com a nota da CF/1988:
+  No download da CF (sidecar cf-1988-compilada.source.yaml, 2026-04-22 17:32 BRT)
+  foi documentado que o Planalto rejeitou User-Agent não-browser. Neste download
+  (mesmo dia, 19:49 UTC = 16:49 BRT, ~30 min depois da CF) o User-Agent
+  "Mozilla/5.0 (KBPD-pipeline-v1.2)" foi aceito sem timeout. Possíveis explicações:
+  (a) inconsistência transiente do filtro do Planalto, (b) o filtro só requer
+  o prefixo "Mozilla/5.0" e não o full UA de browser real, (c) política mudou.
+  Registrar como data point para o cookbook de download.
+
+  ENCODING confirmado WINDOWS-1252 por presença de bytes 0x96 (en-dash) e 0x94
+  (aspa tipográfica direita) — bytes incompatíveis com Latin-1 estrito. Aplicar
+  regra permanente AGENTS.md §96: iconv -f WINDOWS-1252 -t UTF-8.
+
+  HIPÓTESE BUG ORDINAL — ACHADO DECISIVO PARA REFINAMENTO:
+  Este arquivo apresenta COEXISTÊNCIA — 1.500 ocorrências de º correto +
+  ~105 instâncias bugadas distribuídas entre DOIS padrões (<u><sup>o</sup></u>
+  e <sup><u>o</u></sup>). Isso refuta a v2 como predição binária ("compilação
+  AJ = template limpo"). Hipótese v3 (rascunho): o bug é injetado em blocos
+  editoriais NOVOS quando incorporados a códigos antigos — cada lei alteradora
+  carrega seu próprio template, e a compilação acumula. Falsável: códigos
+  novos com pouca alteração devem ter ratio bug/correto baixo; códigos antigos
+  muito alterados devem ter ratio mais alto. Este achado conversa com o do
+  CPP (sidecar irmão) que amplifica o sinal (~30% bugado vs. ~7% aqui).
+
+  POLÍTICA DE FIDELIDADE INALTERADA (AGENTS.md §170): preservar byte-a-byte
+  os dois padrões bugados E o U+00BA. Não normalizar.
+
+  INTEGRIDADE BYTE-A-BYTE vs GIT autocrlf: o sha256 acima foi calculado sobre
+  o binário CRLF original (como baixado do Planalto). O .gitattributes do
+  projeto força eol=lf em raw/**/*.html — após commit + reclone, o checkout
+  produzirá LF, e o sha256 do arquivo em disco DIVERGIRÁ deste. Estado já
+  conhecido para os sidecars das outras leis ordinárias do Planalto.
+  Possível mitigação: adicionar `raw/**/*.html -text` no .gitattributes
+  para tratar como binário (decisão fora do escopo desta coleta).
+
+# Rastreabilidade
+pipeline_version: "1.2"
+etapa_atual: "0-raw-landed"
+proxima_etapa: "0.5-validacao-blocante"
