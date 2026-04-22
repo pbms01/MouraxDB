@@ -1,0 +1,96 @@
+# Sidecar v1.2 — Decreto-Lei 3.689/1941 (Código de Processo Penal compilado)
+# Gerado pela Etapa 0 do pipeline KB-PD — rodada "Trindade Normativa"
+# Pedro Mourão — MPRJ
+
+arquivo: cpp-3689-compilado.html
+tipo: A                                   # normativa
+url_origem: https://www.planalto.gov.br/ccivil_03/decreto-lei/del3689compilado.htm
+baixado_em: "2026-04-22T19:49:51Z"
+baixado_por: pedro.mourao
+user_agent: "Mozilla/5.0 (KBPD-pipeline-v1.2)"
+
+# Integridade
+sha256: "0c8db263e8c78d7139925aeb95bb0737f7d4eea8e1235cf258db7ee4ca97c423"
+bytes: 908086
+
+# Encoding
+encoding_declarado_http: null
+encoding_declarado_meta: null
+encoding_real_detectado: "WINDOWS-1252"
+conversao_prevista:
+  de: "WINDOWS-1252"
+  para: "UTF-8"
+  ferramenta: "iconv -f WINDOWS-1252 -t UTF-8"
+
+# Metadados editoriais
+idioma: pt-BR
+licenca: "Domínio público (Lei 9.610/1998, art. 8º, IV — textos oficiais de órgãos públicos)"
+natureza: "texto compilado consolidado pelo Planalto, com todas as alterações até 2026-03-25 (Last-Modified)"
+vigencia: "ativa (com alterações posteriores incorporadas — inclui arts. 158-A a 158-F da Lei 13.964/2019)"
+
+http_response:
+  content_type: "text/html"
+  content_length: 908086
+  last_modified: "Wed, 25 Mar 2026 09:44:45 GMT"
+  etag: "1c358533cbcdc1:0"
+  user_agent_aceito: true
+
+# Diagnóstico AJ — bug ordinal
+diagnostico_aj2021:
+  bytes_0x80_0x9F: 104
+  bytes_0x80_0x9F_distribuicao:
+    - byte: "0x96"
+      char_cp1252: "– (en-dash)"
+      ocorrencias: 103
+    - byte: "0x94"
+      char_cp1252: "\" (right double quotation mark)"
+      ocorrencias: 1
+  bug_ordinal_u_sup_count: 205             # <u><sup>o</sup></u>
+  bug_ordinal_sup_u_count: 305             # <sup><u>o</u></sup>
+  ordinal_correto_U00BA: 1165
+  resultado: |
+    COEXISTÊNCIA com peso bugado MAIS ALTO que CP — ~30% das instâncias
+    seguem padrão bugado (~510 bugadas / ~1.165 corretas). Confirma e
+    AMPLIFICA o sinal observado no CP (~7%). Hipótese v3 emergente
+    (rascunho — ver sidecar do CP): ratio bug/correto cresce com idade
+    do código + frequência de alteração legislativa.
+
+possui_ordinais_textuais: true
+marcadores_normativos_relevantes:
+  - "Capítulo II do Título VII — DA CADEIA DE CUSTÓDIA (arts. 158-A a 158-F, inseridos pela Lei 13.964/2019)"
+  - "Histórico legislativo inline com 'Redação dada pela Lei nº X'"
+  - "Arts. 13-A e 13-B (preservação telemática e geolocalização) — inserções pela Lei 13.344/2016"
+  - "Art. 157 (frutos da árvore envenenada) — redação Lei 11.690/2008"
+
+observacoes: |
+  Arquivo HTML bruto do Planalto na rota /ccivil_03/decreto-lei/del3689compilado.htm.
+  Tamanho 908.086 bytes (~908 KB) — compilação integral do CPP até 2026-03-25.
+
+  file(1) classifica como "Non-ISO extended-ASCII text" (não "ISO-8859 text" como o CP),
+  refletindo o maior volume de bytes na zona CP1252-only (104 vs. 49 no CP). Distribuição
+  semelhante (en-dash + aspa tipográfica). Aplicar iconv -f WINDOWS-1252 sem exceção.
+
+  CARGA SEMÂNTICA CRÍTICA PARA O DOMÍNIO PROVA DIGITAL: este código incorpora
+  os dispositivos da CADEIA DE CUSTÓDIA (arts. 158-A a 158-F, inseridos pela
+  Lei 13.964/2019 — Pacote Anticrime), eixo do leading case STJ HC 841.778/RS
+  (caso de referência obrigatório do bootstrap, Critério 3 do PLANO-INGESTAO).
+  Na Etapa 2, os L0 desses artigos devem registrar `relacoes: - tipo: aplica,
+  id: lei-13964-2019` para preservar a procedência legislativa.
+
+  HIPÓTESE BUG ORDINAL — REFORÇO DO ACHADO DO CP:
+  Este arquivo amplifica o achado do sidecar do CP — coexistência ainda mais
+  pronunciada (~30% bugado vs. ~7% no CP). Suporta hipótese v3 (rascunho):
+  o ratio bug/correto cresce com idade do código + número de alterações
+  legislativas acumuladas. CPP é de 1941 (igual ao CP), mas teve mais
+  alterações pontuais nas últimas décadas — coerente.
+
+  Coexistência de DOIS padrões bugados distintos sugere que o template
+  editorial mudou ao longo do tempo. Preservar AMBOS (regra §170 AGENTS.md).
+
+  Mesma nota de divergência com a observação CF sobre User-Agent — aceito
+  sem timeout neste download.
+
+# Rastreabilidade
+pipeline_version: "1.2"
+etapa_atual: "0-raw-landed"
+proxima_etapa: "0.5-validacao-blocante"
