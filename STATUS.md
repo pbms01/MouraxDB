@@ -12,7 +12,7 @@
 | Fase | Estado | Bloqueador |
 |---|---|---|
 | 0 — Infra + Git | ✅ concluída | — |
-| 0.5 — Landing zone `raw/` + sidecar | 🟡 estrutura pronta; **validação bloqueante ainda não rodada** sobre os 10 docs já depositados | precisa rodar mojibake score + sha256 match + detecção de artefatos sobre `raw/A-normativas/` |
+| 0.5 — Landing zone `raw/` + sidecar | 🟡 estrutura pronta; **validação bloqueante ainda não rodada** sobre os 11 docs já depositados (10 A + 1 B piloto) | precisa rodar mojibake + sha256 match + detecção de artefatos sobre `raw/A-normativas/`; para `raw/B-jurisprudencia/` adicional: schema §4.4 + verificação ICP |
 | 1 — Bootstrap do vocabulário | ⏳ pendente | bloqueada pelo Critério 1 (cobertura dos 8 tipos) — só A está populado |
 | 2–5 | ⏳ pendentes | dependem da Fase 1 |
 
@@ -37,9 +37,15 @@
 | 9 | Lei 14.155/2021 (furto/fraude eletrônica) | Bolsonaro | retrofited | bug presente |
 | 10 | Lei 14.188/2021 (violência psicológica) | Bolsonaro | retrofited | bug presente |
 
-### B–H (vazios)
+### B-jurisprudencia (1 documento piloto com sidecar v1.2 + extensão §4.4)
 
-`raw/B-jurisprudencia/`, `raw/C-iso/`, `raw/D-resolucoes/`, `raw/E-doutrina/`, `raw/F-operacional/`, `raw/G-proprio/`, `raw/H-pecas/` — todos com `.gitkeep` apenas. Nenhum documento ainda.
+| # | Documento | Órgão | Relatora | sha256 | Observações |
+|---|---|---|---|---|---|
+| 1 | HC 315.220/RS — acórdão | STJ 6ª Turma | Maria Thereza de Assis Moura | `e85bd95c…` | Revista Eletrônica STJ; sem ICP; `fonte_confiavel: pbm_s`; via Git LFS; 58 pp |
+
+### C–H (vazios)
+
+`raw/C-iso/`, `raw/D-resolucoes/`, `raw/E-doutrina/`, `raw/F-operacional/`, `raw/G-proprio/`, `raw/H-pecas/` — todos com `.gitkeep` apenas. Nenhum documento ainda.
 
 **Próximas coletas prioritárias** (cobrem o caminho crítico do bootstrap):
 - B: RE 1.055.941/SP (STF), HC 841.778/RS (STJ), ADI 6.031/RE 1.037.396 (STF) — caso de validação Critério 3c
@@ -103,18 +109,21 @@
 3. Baixar Resolução CNJ 615/2025.
 4. Selecionar 2 pares dialéticos H do acervo MPRJ (Pedro escolhe).
 
-### Caminho C — executar piloto Tipo B (HC 315.220/STJ)
-Desbloqueado pelo `raw-protocol.md` v2 (commit 66c150f). Primeiro teste end-to-end do Path 1 para jurisprudência:
-1. Baixar inteiro-teor e-STJ do HC 315.220 (ICP-Brasil via `pdfsig`).
-2. Depositar em `raw/B-jurisprudencia/STJ/HC-315220/`.
-3. Produzir `.source.yaml` v1.2 estendido conforme §4.4 do raw-protocol.
-4. Rodar Etapa 0.5 (schema + SHA + ICP).
-5. `pdftotext -layout` → MD em `inbox/` com front-matter dual-layer (§4.5).
+### Caminho C — piloto Tipo B (HC 315.220/STJ) — PARCIALMENTE CONCLUÍDO
+Desbloqueado pelo `raw-protocol.md` v2 (commit 66c150f; fix cosmético do exemplo §8.2 em 6927e9a).
 
-Valida simultaneamente: (a) schema §4.4, (b) pipeline Path 1, (c) coleta MPRJ como `fonte_confiavel=pbm_s` quando ICP estiver ausente.
+**Etapas concluídas em 2026-04-22 (commits 6927e9a + 3632faa):**
+1. ✅ PDF depositado em `raw/B-jurisprudencia/STJ/HC-315220/hc-315220-stj.pdf` via Git LFS (58 pp, 317.856 B, sha256 `e85bd95c…`).
+2. ✅ `.source.yaml` v1.2 estendido conforme §4.4 (Revista Eletrônica STJ; ICP ausente; `fonte_confiavel: pbm_s`; incerteza da URL registrada em `observacoes`).
 
-### Decisão pendente do Pedro
-Três caminhos abertos (A, B, C). Caminho C é o mais barato (1 documento, 1 commit) e valida o schema de Tipo B na prática antes de coletar RE 1.055.941/SP e outros. Prioridade sugerida: **C → A → B**.
+**Etapas pendentes — bloqueadas por scripts ainda não existentes:**
+3. ⏳ Rodar Etapa 0.5 (schema + SHA + verificação ICP) — bloqueada pela ausência de `scripts/validate_raw_05.py` ou equivalente. Precisa estender o validador com o schema §4.4 antes de rodar.
+4. ⏳ `pdftotext -layout` + `segmenta_acordao.py` → MD em `inbox/B-jurisprudencia/STJ-HC-315220.md` com front-matter dual-layer (§4.5) — bloqueada pela ausência de `scripts/segmenta_acordao.py` (perfil STJ). Sidecar aceita `segmentador_sha: null` como bootstrap.
+
+O piloto já validou empiricamente: (a) schema §4.4 aplicável na prática; (b) padrão hierárquico `raw/B-jurisprudencia/{TRIBUNAL}/{INSTRUMENTO-NUM}/` funciona; (c) coleta via Revista Eletrônica com `pbm_s` como âncora de confiança é viável quando ICP está ausente.
+
+### Próxima decisão do Pedro
+Dois caminhos abertos: (A) destravar Etapa 0.5 sobre A-normativas escrevendo `validate_raw_05.py`; (B) ampliar o acervo Tipo B com próximo julgado jurisprudencial (RE 1.055.941/SP, HC 841.778/RS, ou ADI 6.031). Caminho A desbloqueia a Fase 1 parcial; Caminho B adensa o corpus antes do vocabulário ser induzido.
 
 ---
 
@@ -122,8 +131,8 @@ Três caminhos abertos (A, B, C). Caminho C é o mais barato (1 documento, 1 com
 
 | Arquivo | Função | Última atualização |
 |---|---|---|
-| `_AGENTS/AGENTS.md` | Contrato operacional do pipeline; carregado em toda sessão Cowork | 2026-04-22 (v3 do bug ordinal) |
-| `_AGENTS/raw-protocol.md` | Schema do sidecar `.source.yaml` + fluxo de 4 etapas; extensões Tipo B em §4.4/§4.5, exemplo canônico §8.2 | 2026-04-22 (v2 — commit 66c150f) |
+| `_AGENTS/AGENTS.md` | Contrato operacional do pipeline; carregado em toda sessão Cowork | 2026-04-22 (v3 bug ordinal + subseção PS 5.1 `git commit -m` splitting) |
+| `_AGENTS/raw-protocol.md` | Schema do sidecar `.source.yaml` + fluxo de 4 etapas; extensões Tipo B em §4.4/§4.5, exemplo canônico §8.2 | 2026-04-22 (v2.1 — commits 66c150f + 6927e9a fix metadados §8.2) |
 | `_AGENTS/schema-reference.md` | Schema canônico completo (L0, L1, L2, L3) | (estável) |
 | `_AGENTS/citacoes-canonicas.md` | Formatos de citação por source_type | (estável) |
 | `_AGENTS/hot-articles.yaml` | Camada de priorização declarativa por domínio | 2026-04-22 (v0.2) |
@@ -143,6 +152,7 @@ Salvar tempo na próxima sessão evitando armadilhas já mapeadas:
 3. **PowerShell 5.1 + `$ErrorActionPreference = 'Stop'` promove warnings de Git a erros fatais** → padrão canônico `$null = & git ... 2>&1` + check de `$LASTEXITCODE`. Documentado em `_AGENTS/AGENTS.md`.
 4. **Encoding Planalto é WINDOWS-1252, não ISO-8859-1** → sempre `iconv -f WINDOWS-1252` na Etapa 1, mesmo quando o meta diz outra coisa. Validado empiricamente em 10 documentos.
 5. **User-Agent matters para o Planalto** — historicamente requeria Mozilla; a coleta de CP/CPP em 2026-04-22 confirmou que User-Agent não-browser também é aceito (atualização registrada nos sidecars). Documentar como flutuação operacional.
+6. **`git commit -m $msg` no PowerShell 5.1 fragmenta mensagens com `-`, `(`, `)`, `->` ou travessão** → parser de comandos nativos interpreta esses caracteres como separadores de argumento; erro típico enganoso `fatal: pathspec '15' did not match...`. Padrão canônico: `git commit -F <tempfile>` com `[System.IO.File]::WriteAllText(..., UTF8Encoding $false)`. Documentado em `_AGENTS/AGENTS.md` §Warnings Git.
 
 ---
 
