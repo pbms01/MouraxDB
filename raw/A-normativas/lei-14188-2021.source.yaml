@@ -1,0 +1,20 @@
+arquivo: lei-14188-2021.html
+tipo: A
+url_origem: https://www.planalto.gov.br/ccivil_03/_ato2019-2022/2021/lei/L14188.htm
+baixado_em: "2026-04-22T16:33:00Z"
+baixado_por: "Pedro Mourão (via Cowork — sessão 2026-04-22)"
+sha256: "250325e536225aabf6af427f4f80da929d55463eadc34c472210920532992911"
+encoding_declarado_http: "text/html"
+encoding_real_detectado: "WINDOWS-1252"
+conversao_prevista: "html→md via iconv -f WINDOWS-1252 -t UTF-8 + strip HTML (BeautifulSoup)"
+observacoes: >
+  Lei 14.188/2021 (sanção 28/07/2021, publicação DOU 29/07/2021).
+  Define violência psicológica contra a mulher (cria art. 147-B CP) e altera
+  art. 129 § 9º CP para incluir violência psicológica como forma de violência
+  doméstica. Também altera a Lei Maria da Penha (Lei 11.340/2006) para
+  incluir o programa de cooperação "Sinal Vermelho" e ampliar o rol de
+  condutas configuradoras de violência doméstica e familiar.
+  Conteúdo: 18.263 B, 8 bytes exclusivos CP1252 (0x80-0x9F), 170 high-bit
+  (0.93%) — típico do Planalto. Vetor forense direto: monitoramento de
+  mensagens e práticas de controle coercitivo em dispositivos digitais
+  frequentemente caracterizam violência psicológica.

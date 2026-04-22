@@ -1,0 +1,22 @@
+# Sidecar LEGADO pré-v1.2
+arquivo: null
+tipo: A
+url_origem: https://www.planalto.gov.br/ccivil_03/_ato2011-2014/2014/lei/l12965.htm
+baixado_em: "2026-04-22"
+baixado_por: pedro.mourao
+sha256: null
+encoding_declarado_http: null
+encoding_real_detectado: "WINDOWS-1252"
+conversao_prevista: "já convertido — ver inbox/lei-12965-2014.md"
+idioma: ptBR
+licenca: "domínio público (Lei 9.610/98 art. 8º IV — textos de lei)"
+observacoes: >
+  legado-pre-v1.2 — binário HTML original não preservado na sessão de
+  2026-04-22. MD canônico intermediário em inbox/lei-12965-2014.md
+  (47.333 B). Peculiaridades preservadas por fidelidade: art. 12 e
+  incisos VII/VIII do art. 5º duplicados por MP 1.068/2021 (rejeitada);
+  arts. 8º-A/B/C/D e 28-A entraram como status:superado e
+  valido_ate:2021-10-27 por efeito da rejeição da MP. Art. 19 com
+  eficácia condicionada pelo STF (ADI 6.031 + RE 1.037.396 — par
+  obrigatório para ingestão como Tipo B no bootstrap).
+  Reconstruir sha256 sob demanda.

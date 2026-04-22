@@ -15,15 +15,24 @@ E: doutrina — atribuição de autor obrigatória no L0, autoridade: persuasivo
 F: operacional/ferramental — campos versao_ferramenta + data_verificacao + ciclo_revisao_meses obrigatórios, autoridade: exemplificativo
 G: conhecimento próprio — confiança rebaixada para 'media' HARDCODED (não negociável), revisão humana obrigatória sem exceção
 H: peças processuais — unidade de valor é padrão argumentativo, campos par_dialetico_id e polo obrigatórios
+## PIPELINE DE INGESTÃO — 4 ESTÁGIOS (v1.2)
+Todo documento atravessa: raw/ → (Etapa 0.5) → inbox/ → (Etapa 2) → corpus/.
+- Etapa 0: depósito em raw\<tipo>\ com sidecar .source.yaml obrigatório (schema em _AGENTS\raw-protocol.md §4). Sidecar sem sha256 só para legado pré-v1.2.
+- Etapa 0.5: validação bloqueante de encoding + hash + artefatos (detalhada abaixo).
+- Etapa 1: conversão canônica conforme campo conversao_prevista do sidecar (HTML→MD via iconv CP1252, PDF→MD via pdftotext, JSON→MD via parser, etc.). Produto: inbox\<id>.md com front-matter completo (schema-reference.md §5).
+- Etapa 2: chunking atômico por artigo/cláusula. Produto: corpus\<tipo>\<id>\<chunk>.md (L0 canônico).
+Fluxo detalhado e exemplos: _AGENTS\raw-protocol.md §7.
+
 ## ETAPA 0.5 — PRÉ-CONDIÇÃO BLOQUEANTE (executa em TODO documento, sem exceção)
-1. Verificar encoding: detectar padrões de corrupção UTF-8→Latin-1 (ex: "ÃÃ§Ã£o" em vez de "ação")
+1. Conferência de integridade: sha256 recalculado bate com sidecar .source.yaml (mismatch → aborta).
+2. Verificar encoding: detectar padrões de corrupção UTF-8→Latin-1 (ex: "ÃÃ§Ã£o" em vez de "ação")
    - Score > 2% de tokens afetados → quarantine\encoding-artifacts\ + encoding_validated: false
    - Score 0.5–2% → warning + revisão manual recomendada
    - Score < 0.5% → encoding_validated: true, prossegue
-2. Verificar artefatos de processo: ((VERIFICAR)), [[notas internas]], RASCUNHO, linhas com ??, (TIRAR DA
+3. Verificar artefatos de processo: ((VERIFICAR)), [[notas internas]], RASCUNHO, linhas com ??, (TIRAR DA
    - Qualquer match → quarantine\encoding-artifacts\ com lista de ocorrências
-3. Documento só avança com encoding_validated: true no front-matter YAML.
-4. PROIBIDO limpeza automatizada — risco de remoção de conteúdo legítimo em texto jurídico.
+4. Documento só avança com encoding_validated: true no front-matter YAML.
+5. PROIBIDO limpeza automatizada — risco de remoção de conteúdo legítimo em texto jurídico.
 ## REGRAS ABSOLUTAS
 1. NUNCA sobrescrever L0: correções criam nova versão; anterior → superados\ + status: superado + valido_ate preenchido
 2. NUNCA ingerir output da própria KB como Tipo G (loop de contaminação)
@@ -55,6 +64,7 @@ contém $, \, backticks ou qualquer marcação que bash interprete como expansã
 Após escrita: verificar tamanho com wc -c e confirmar que bate com o esperado antes de prosseguir.
 Aplicável a: todos os arquivos .md, .yaml e .txt do pipeline com conteúdo jurídico em português.
 ### Encoding de atos normativos do Planalto (planalto.gov.br)
+**Política aplicada na Etapa 1 do pipeline** (conversão raw/ → inbox/).
 O portal Planalto serve HTML em Windows-1252 (CP1252), não ISO-8859-1.
 A diferença é crítica: bytes 0x80–0x9F existem no CP1252 mas não no Latin-1.
 Caracteres afetados: aspas tipográficas “” (0x93/0x94), en-dash – (0x96),
@@ -62,13 +72,36 @@ elipse … (0x85). Com -f ISO-8859-1 esses bytes são convertidos silenciosament
 para símbolos incorretos sem abortar — perda invisível e sem flag de erro.
 Regra permanente: usar SEMPRE iconv -f WINDOWS-1252 -t UTF-8 para qualquer
 ato do Planalto, independentemente do que o meta charset declare.
-Validado empiricamente em: Lei 12.737/2012, Lei 14.155/2021, Lei 12.965/2014.
+Registrar no sidecar .source.yaml: encoding_declarado_http: "ISO-8859-1"
+(o que o HTTP/meta diz) e encoding_real_detectado: "WINDOWS-1252" (o que
+file/chardet confirma). A divergência dos dois campos é parte da cadeia
+de custódia da conversão.
+Validado empiricamente em: Lei 12.737/2012, Lei 14.155/2021, Lei 12.965/2014,
+Lei 14.132/2021, Lei 14.188/2021, Lei 13.718/2018 (6 leis até 2026-04-22).
 Aplicável a: CP, CPP, leis ordinárias, medidas provisórias, decretos do Planalto.
 Se o arquivo inteiro precisar ser reescrito via heredoc por causa do risco de
 truncagem, reescrever preservando todas as seções existentes. Verificar com
 wc -c antes e depois — o arquivo deve crescer, nunca diminuir.
+### Fidelidade a artefatos do Planalto (ordinais, duplicações, erros de digitação)
+O Planalto apresenta ordinais do fecho de lei de duas formas distintas,
+e essa variação NÃO é universal do portal — correlaciona com a gestão da
+Subchefia para Assuntos Jurídicos em cada período.
+- Forma correta (caractere U+00BA masculine ordinal indicator): "197º", "130º"
+- Forma com bug (HTML `<u><sup>o</sup></u>` sem o caractere º real): "200o", "133o"
+Confirmado empiricamente:
+- Bug presente: Lei 14.132/2021, Lei 14.155/2021, Lei 14.188/2021 (leis 2021, assinatura Bolsonaro)
+- Bug ausente: Lei 13.718/2018 (assinatura Dias Toffoli em exercício da Presidência, 24/09/2018)
+Regra do pipeline: o extrator NUNCA "corrige" a forma ordinal — preserva
+exatamente como veio do HTML. Duplicações de artigo (ex: Marco Civil art. 12
+duplicado por MP 1.068/2021 rejeitada), erros de digitação oficiais e qualquer
+outra "anomalia" do Planalto também são preservados byte a byte na Etapa 1.
+A política de fidelidade está acima da política de limpeza: qualquer
+correção é decisão humana editorial a ser feita em etapa posterior,
+nunca no pipeline automatizado.
 ## REFERÊNCIAS INTERNAS
+- Protocolo da landing zone raw/ (sidecar .source.yaml + pipeline): _AGENTS\raw-protocol.md
 - Schema canônico completo: _AGENTS\schema-reference.md
 - Formatos de citação por tipo: _AGENTS\citacoes-canonicas.md
 - Vocabulário ativo: schema\vocabulario.yaml
 - Golden dataset: schema\golden_dataset.yaml
+- Plano de ingestão e fases: PLANO-INGESTAO.md

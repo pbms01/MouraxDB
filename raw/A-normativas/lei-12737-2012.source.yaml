@@ -1,0 +1,19 @@
+# Sidecar LEGADO pré-v1.2
+arquivo: null
+tipo: A
+url_origem: https://www.planalto.gov.br/ccivil_03/_ato2011-2014/2012/lei/l12737.htm
+baixado_em: "2026-04-22"
+baixado_por: pedro.mourao
+sha256: null
+encoding_declarado_http: null
+encoding_real_detectado: "WINDOWS-1252"
+conversao_prevista: "já convertido — ver inbox/lei-12737-2012.md"
+idioma: ptBR
+licenca: "domínio público (Lei 9.610/98 art. 8º IV — textos de lei)"
+observacoes: >
+  legado-pre-v1.2 — binário HTML original não preservado na sessão de
+  2026-04-22 que converteu a lei para MD. MD canônico intermediário em
+  inbox/lei-12737-2012.md (4.769 B) com encoding já validado.
+  Reconstruir sha256 sob demanda se a lei for contestada: re-download
+  do Planalto com iconv -f WINDOWS-1252 -t UTF-8, comparação byte a
+  byte com MD atual via conversão reversa.

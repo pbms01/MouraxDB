@@ -1,7 +1,17 @@
 # PLANO-INGESTAO.md
-# KB-PD — Plano de Ingestão v1.1
+# KB-PD — Plano de Ingestão v1.2
 # Fonte: KB-PD-plano-v3.md + decisões de setup (abril 2026)
 # Versionar no Git. Atualizar a cada fase concluída.
+#
+# Changelog v1.1 → v1.2 (2026-04-22):
+# Introduzido estágio raw/ como landing zone imutável por tipo (8 subpastas).
+# Formalizadas Etapas 0 (registro de procedência via .source.yaml) e 0.5
+# (validação de encoding/corrupção) como pré-condições absolutas da entrada
+# no inbox/. Critério 1 (cobertura dos 8 tipos no bootstrap) agora é
+# auditável via `ls raw/*/`. Arquivos atuais do inbox/ marcados como
+# legado pré-v1.2 com sidecar retroativo de sha256:null. Git LFS habilitado
+# para raw/**/*.pdf e raw/**/*.epub. Schema completo do sidecar e pipeline
+# de 4 estágios em _AGENTS/raw-protocol.md.
 #
 # Changelog v1.0 → v1.1:
 # Adicionado Critério 3c — terceiro caso de Tipo A (mutação jurisprudencial sem
@@ -17,11 +27,47 @@
 | Fase | Descrição | Status |
 |------|-----------|--------|
 | 0 | Infraestrutura e repositório Git | ✅ Concluído |
-| 1 | Bootstrap do vocabulário | ⏳ Pendente — aguarda seleção do corpus |
+| 0.5 | Landing zone raw/ + sidecar .source.yaml + LFS | 🟡 Em andamento — estrutura criada em 2026-04-22, 3 sidecars legados populados |
+| 1 | Bootstrap do vocabulário | ⏳ Pendente — bloqueado pelo Critério 1 (cobertura dos 8 tipos em raw/) |
 | 2 | Prompts de extração por tipo | ⏳ Pendente |
 | 3 | Golden dataset inicial | ⏳ Pendente |
 | 4 | Configuração da busca híbrida | ⏳ Pendente |
 | 5 | Primeira ingestão em lote + baseline RAGAS | ⏳ Pendente |
+
+---
+
+## Fase 0.5 — Landing zone raw/ e validação de encoding
+
+### Objetivo
+
+Formalizar `raw/` como única porta de entrada do corpus e garantir cadeia de
+custódia do binário original (URL de origem, data de baixa, SHA-256, encoding
+real detectado) antes de qualquer transformação. Separar landing zone
+(imutável) de corpus processado é a única forma de garantir reprodutibilidade
+do pipeline sob reprocessamento.
+
+### Componentes
+
+1. **Estrutura de pastas**: `raw/A-normativas/` … `raw/H-pecas/` (8 subpastas
+   espelhando os 8 source_types).
+2. **Sidecar obrigatório** `.source.yaml` por arquivo, schema documentado em
+   `_AGENTS/raw-protocol.md` §4. Sidecar com `sha256: null` permitido apenas
+   para legado pré-v1.2; em todos os demais casos o pipeline bloqueia.
+3. **Git LFS** para `raw/**/*.pdf` e `raw/**/*.epub` (ver `.gitattributes`).
+4. **Etapa 0.5 bloqueante**: validação de encoding + hash + detecção de
+   artefatos antes da Etapa 1. Thresholds conforme AGENTS.md §ETAPA 0.5.
+
+### Critério de conclusão desta fase
+
+Não há critério binário de "conclusão" — a Fase 0.5 é contínua: toda
+ingestão futura depende dela. O que é verificável é a estrutura:
+
+- [x] 8 subpastas raw/ criadas com .gitkeep
+- [x] .gitattributes com filtros LFS para pdf/epub
+- [x] _AGENTS/raw-protocol.md documentando o sidecar
+- [x] 3 sidecars retroativos para legado pré-v1.2 (lei-12737, lei-14155,
+      lei-12965) com sha256:null e observacoes:legado-pre-v1.2
+- [ ] git lfs install executado no Windows (Pedro — uma vez por máquina)
 
 ---
 
@@ -36,11 +82,33 @@ primeira carga.
 
 ### Pré-condição obrigatória
 
-Todo documento do corpus de bootstrap deve passar pela Etapa 0.5 (validação de
-encoding e detecção de artefatos) ANTES de ser submetido à indução de vocabulário.
-Documentos com encoding corrompido no bootstrap contaminam o vocabulário induzido —
-os termos extraídos de texto corrompido produzem near-duplicates espúrios que
-persistem como ruído no vocabulario.yaml.
+**A partir da v1.2:** todo documento do corpus de bootstrap deve estar
+depositado em `raw/<tipo>/` com sidecar `.source.yaml` válido (§4 de
+`_AGENTS/raw-protocol.md`) ANTES de ser submetido à Etapa 0.5 de validação
+de encoding, e esta ANTES da indução de vocabulário.
+
+Pipeline de pré-condições em ordem:
+
+```
+raw/<tipo>/<id>.<ext>       ← depósito imutável
+raw/<tipo>/<id>.source.yaml ← sidecar obrigatório (sha256, url, encoding)
+            │
+            ▼
+Etapa 0.5 — validação bloqueante (AGENTS.md §ETAPA 0.5)
+   - sha256 confere com sidecar
+   - score de corrupção < 0.5%
+   - sem artefatos de processo
+            │
+            ▼
+Etapa 1 — conversão canônica → inbox/<id>.md
+            │
+            ▼
+Indução de vocabulário (Fase 1 propriamente dita)
+```
+
+Documentos com encoding corrompido no bootstrap contaminam o vocabulário
+induzido — os termos extraídos de texto corrompido produzem near-duplicates
+espúrios que persistem como ruído no `vocabulario.yaml`.
 
 Validar encoding antes de selecionar, não depois.
 
@@ -65,6 +133,20 @@ Validar encoding antes de selecionar, não depois.
 O teto de 25 é mais importante que o piso de 17. Bootstrap com 30+ documentos
 não melhora a qualidade do vocabulário e aumenta o tempo de revisão humana sem
 ganho proporcional. Diversidade importa mais que volume.
+
+**Auditoria de cobertura (v1.2):** verificável em um comando a partir da
+landing zone `raw/`:
+
+```bash
+for tipo in raw/*/; do
+  count=$(ls "$tipo" 2>/dev/null | grep -v '^\.gitkeep$' | grep -v '\.source\.yaml$' | wc -l)
+  echo "$tipo: $count arquivos"
+done
+```
+
+A Fase 1 só destrava quando cada um dos 8 tipos tiver ≥ mínimo da tabela
+acima. Estado atual: A=3 (legado pré-v1.2), B=0, C=0, D=0, E=0, F=0, G=0,
+H=0 — insuficiente para bootstrap.
 
 ---
 
@@ -295,13 +377,13 @@ extração não podem ser validadas antes da ingestão em lote.
 ### Sequência de execução da Fase 1
 
 ```
-1. Selecionar corpus de bootstrap (20–25 documentos conforme critérios acima)
-2. Converter todos para .md com front-matter YAML mínimo (source_type + id provisório)
-3. Executar Etapa 0.5 em cada documento:
-   - Validação de encoding (score > 2% → quarantine/encoding-artifacts/)
-   - Detecção de artefatos de processo
-   - Somente documentos com encoding_validated: true avançam
-4. Executar prompt de indução de vocabulário (Cowork) sobre o corpus validado
+1. Depositar corpus de bootstrap em raw/<tipo>/ (20–25 documentos, cobertura
+   dos 8 tipos, um sidecar .source.yaml por arquivo)
+2. Executar Etapa 0.5 em cada arquivo de raw/ (validação de encoding,
+   conferência de sha256 com sidecar, detecção de artefatos)
+3. Executar Etapa 1 de conversão canônica (raw/ → inbox/<id>.md com
+   front-matter completo)
+4. Executar prompt de indução de vocabulário (Cowork) sobre inbox/ validado
 5. Revisar vocabulario.yaml candidato:
    - Ao menos 3 sinonimos_informais por termo
    - Nenhum termo que aparece em apenas 1 documento
@@ -459,10 +541,13 @@ simples no delimitador. Verificar tamanho com `wc -c` após escrita.
 
 | SHA-1 | Mensagem | Data |
 |-------|----------|------|
-| 34af1cbc | chore: estrutura inicial KB-PD v3.0 | 2026-04-22 |
+| 34af1cb | chore: estrutura inicial KB-PD v3.0 | 2026-04-22 |
 | f6a1686 | chore: forçar LF em todos os arquivos de texto (eol=lf) | 2026-04-22 |
+| 458ef3a | docs: plano de ingestão v1.1 + extensões de schema (eficacia_condicionada, norma_com_eficacia_condicionada) | 2026-04-22 |
+| 2f4083a | feat: ingestão Tipo A — leis 12.737/2012, 14.155/2021, 12.965/2014 + regra encoding Planalto (Windows-1252) | 2026-04-22 |
+| pendente | refactor: pipeline v1.2 — raw/ landing zone + sidecar source.yaml + etapas 0/0.5 formalizadas | 2026-04-22 |
 
 ---
 
-*Documento gerado em 2026-04-22. Atualizado para v1.1 em 2026-04-22.*
+*Documento gerado em 2026-04-22. Atualizado para v1.2 em 2026-04-22.*
 *Atualizar status das fases a cada conclusão.*

@@ -1,0 +1,18 @@
+# Sidecar LEGADO pré-v1.2
+arquivo: null
+tipo: A
+url_origem: https://www.planalto.gov.br/ccivil_03/_ato2019-2022/2021/lei/L14155.htm
+baixado_em: "2026-04-22"
+baixado_por: pedro.mourao
+sha256: null
+encoding_declarado_http: null
+encoding_real_detectado: "WINDOWS-1252"
+conversao_prevista: "já convertido — ver inbox/lei-14155-2021.md"
+idioma: ptBR
+licenca: "domínio público (Lei 9.610/98 art. 8º IV — textos de lei)"
+observacoes: >
+  legado-pre-v1.2 — binário HTML original não preservado na sessão de
+  2026-04-22. MD canônico intermediário em inbox/lei-14155-2021.md
+  (6.008 B). Preserva bugs de digitação do Planalto ("200o" e "133o"
+  em referências aos arts. 154-A e 171-A do CP) por disciplina de
+  fidelidade (AGENTS.md §Regras). Reconstruir sha256 sob demanda.
