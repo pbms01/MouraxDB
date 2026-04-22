@@ -1,0 +1,107 @@
+---
+# golden_dataset.yaml
+# Dataset de avaliação contínua do pipeline KB-PD — v0.0
+# Fonte: KB-PD-plano-v3.md, Seção 16.1
+#
+# Estrutura de cada entrada:
+#   id:                  string — identificador único (ex: gd-001)
+#   query:               string — pergunta em linguagem natural
+#   tipo:                enum — ver categorias abaixo
+#   ancora:              "YYYY-MM-DD" | null — âncora temporal (só tipo: temporal)
+#   indice_esperado:     normativo_doutrinario | padroes | ambos | null
+#   l0s_esperados:       lista de IDs de L0s que a busca deve recuperar
+#   resposta_esperada:   string | null — resposta correta (null se verificação só por L0s)
+#   filtros_esperados:   map — metadados que o query router deve detectar
+#   notas:               string — o que este par testa especificamente
+#
+# Categorias de tipo (distribuição-alvo: ~65 pares):
+#   normativa_simples     15 pares — lookup direto Tipo A/D, BM25 em identificadores
+#   multi_hop_juridico    10 pares — raciocínio cruzado A+B, context recall
+#   temporal              10 pares — point-in-time retrieval, valido_desde/valido_ate
+#   contrastante_autoridade 10 pares — vinculante vs persuasivo, campo tensoes L2
+#   padrao_argumentativo  10 pares — índice de padrões, query routing, Tipo H
+#   expansao_vocabulario   5 pares — linguagem informal → vocabulário controlado
+#   dialetico              5 pares — par_dialetico_id, polo, view dialética
+#   sem_resposta           5 pares — lacuna de cobertura, retrieval_confidence baixo
+#
+# INSTRUÇÃO DE PREENCHIMENTO:
+# Pares são adicionados manualmente pelo especialista de domínio após primeira ingestão.
+# Não preencher automaticamente — exemplos sintéticos invalidam a avaliação.
+# Prioridade de preenchimento: temporal > contrastante_autoridade > dialetico > sem_resposta
+# (os quatro tipos que testam diferenciais arquiteturais específicos da v3).
+#
+# Casos de referência obrigatórios a incluir quando os L0s estiverem disponíveis:
+#   - RE 1.055.941/SP (STF) — leading case prova digital, todos os 4 componentes
+#   - HC 841.778/RS (STJ)   — cadeia de custódia digital
+#   - ADC 51 (STF)          — constitucionalidade de dispositivos de vigilância
+#
+# Resultados de avaliação salvos em: schema\eval_results\AAAA-MM-DD.json
+# Executar via Claude Code após cada mudança significativa no pipeline e mensalmente.
+version: "0.0"
+last_updated: ""
+total_pairs: 0
+pairs_by_type:
+  normativa_simples: 0
+  multi_hop_juridico: 0
+  temporal: 0
+  contrastante_autoridade: 0
+  padrao_argumentativo: 0
+  expansao_vocabulario: 0
+  dialetico: 0
+  sem_resposta: 0
+entries: []
+# Exemplo de entrada (comentado — não remover, serve de template):
+#
+# - id: "gd-001"
+#   query: "Qual a pena mínima prevista no art. 154-A do CP para acesso não autorizado?"
+#   tipo: normativa_simples
+#   ancora: null
+#   indice_esperado: normativo_doutrinario
+#   l0s_esperados:
+#     - "cp-art154a-caput-pena"
+#   resposta_esperada: "Detenção de 1 a 4 anos, e multa."
+#   filtros_esperados:
+#     source_type: A
+#     status: ativo
+#   notas: "Testa lookup normativo direto com vigência atual (redação Lei 14.155/2021).
+#           Valida BM25 em identificador exato 'art. 154-A'."
+#
+# - id: "gd-015"
+#   query: "Como o STJ tratava dados de localização antes do RE 1.055.941?"
+#   tipo: temporal
+#   ancora: "2019-05-01"
+#   indice_esperado: normativo_doutrinario
+#   l0s_esperados:
+#     - "stj-hc-xxxxxx-ratio"
+#     - "stj-resp-xxxxxxx-holding"
+#   resposta_esperada: null
+#   filtros_esperados:
+#     tribunal: STJ
+#   notas: "Testa point-in-time retrieval com âncora anterior ao leading case de 2020.
+#           Valida campos valido_desde/valido_ate."
+#
+# - id: "gd-050"
+#   query: "Como o polo acusatório costuma argumentar em espelhamento de WhatsApp
+#           e como a defesa refuta?"
+#   tipo: dialetico
+#   ancora: null
+#   indice_esperado: padroes
+#   l0s_esperados:
+#     - "inicial-espelhamento-zap-tese1"
+#     - "contestacao-espelhamento-zap-tese1"
+#   resposta_esperada: null
+#   filtros_esperados:
+#     problema_juridico: negativa_espelhamento_whatsapp
+#   notas: "Testa view dialética — par_dialetico_id + polo. Valida que os dois polos
+#           são recuperados simultaneamente."
+#
+# - id: "gd-075"
+#   query: "Procedimento de aquisição forense em iPhone bloqueado com iOS 17"
+#   tipo: sem_resposta
+#   ancora: null
+#   indice_esperado: null
+#   l0s_esperados: []
+#   resposta_esperada: "KB não cobre esse ponto com precisão suficiente."
+#   filtros_esperados: {}
+#   notas: "Testa degradação graciosa — retrieval_confidence abaixo do threshold.
+#           Valida que o sistema declara lacuna em vez de alucinar."

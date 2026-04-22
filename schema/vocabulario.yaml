@@ -1,0 +1,23 @@
+---
+version: "0.0-pre-bootstrap"
+last_updated: ""
+induced_from_docs: 0
+vocabularios:
+  dominios:
+    terms: []
+    history: []
+  problema_juridico:
+    terms: []
+    history: []
+  teses_principais:
+    terms: []
+    history: []
+  tipo_decisao:
+    terms: []
+    history: []
+  posicao_doutrinaria:
+    terms: []
+    history: []
+# ATENÇÃO: não preencher manualmente.
+# Este arquivo é populado pela Fase 1 do pipeline (indução empírica do corpus de bootstrap).
+# Toda alteração requer aprovação humana e git commit.

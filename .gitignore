@@ -1,0 +1,14 @@
+# Sistema operacional
+.DS_Store
+Thumbs.db
+desktop.ini
+# Bancos de embeddings (grandes demais para Git)
+*.sqlite
+*.db
+*.chroma/
+chroma_db/
+# Arquivos temporários de pipeline
+*.tmp
+*.processing
+# Manter .gitkeep
+!.gitkeep
