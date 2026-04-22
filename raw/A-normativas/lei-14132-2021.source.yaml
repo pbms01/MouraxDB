@@ -1,0 +1,20 @@
+arquivo: lei-14132-2021.html
+tipo: A
+url_origem: https://www.planalto.gov.br/ccivil_03/_ato2019-2022/2021/lei/L14132.htm
+baixado_em: "2026-04-22T16:31:00Z"
+baixado_por: "Pedro Mourão (via Cowork — sessão 2026-04-22)"
+sha256: "6998e5ff525d746a497ea309c36eace0205e6e9a7c4b451514c6cdada7e7dff0"
+encoding_declarado_http: "text/html"
+encoding_real_detectado: "WINDOWS-1252"
+conversao_prevista: "html→md via iconv -f WINDOWS-1252 -t UTF-8 + strip HTML (pandoc ou python/BeautifulSoup)"
+observacoes: >
+  Lei 14.132/2021 (sanção 31/03/2021, publicação DOU 01/04/2021 edição extra).
+  Cria art. 147-A CP (crime de perseguição/stalking) e revoga art. 65 LCP.
+  Conteúdo: 4 artigos, texto curto (14.333 B).
+  Presença confirmada de 6 bytes na faixa 0x80-0x9F exclusiva de CP1252
+  (aspas tipográficas em "§", "§§" e similar); iconv Latin-1 corromperia
+  silenciosamente. Preservar bugs do Planalto "200o" (200º) e "133o" (133º)
+  no fecho, como nas demais leis já ingeridas.
+  Ligação direta com projeto KB-PD: modalidade online do stalking é vetor
+  principal de uso forense do 147-A; par com Lei 11.340/2006 (MPU) e com
+  Convenção de Budapeste.
