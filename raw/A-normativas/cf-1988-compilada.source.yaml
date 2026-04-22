@@ -1,0 +1,78 @@
+# Sidecar v1.2 — Constituição Federal de 1988 (texto compilado)
+# Gerado automaticamente pela Etapa 0 do pipeline KB-PD
+# Pedro Mourão — MPRJ
+
+arquivo: cf-1988-compilada.html
+tipo: A                                   # normativa
+url_origem: https://www.planalto.gov.br/ccivil_03/constituicao/constituicaocompilado.htm
+baixado_em: "2026-04-22T17:32:00-03:00"
+baixado_por: pedro.mourao
+user_agent: "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0 Safari/537.36"
+
+# Integridade
+sha256: "09adfaddecb8b3411141228307cc51b48d2343b3ae8639ca60df47b74b7a26e6"
+bytes: 1501025
+
+# Encoding
+encoding_declarado_http: null              # servidor não declara Content-Type charset
+encoding_declarado_meta: null              # HTML não tem <meta charset>
+encoding_real_detectado: "WINDOWS-1252"    # política Planalto (file(1) detecta ISO-8859; tratamos como CP1252)
+conversao_prevista:
+  de: "WINDOWS-1252"
+  para: "UTF-8"
+  ferramenta: "iconv -f WINDOWS-1252 -t UTF-8"
+
+# Metadados editoriais
+idioma: pt-BR
+licenca: "Domínio público (Lei 9.610/1998, art. 8º, IV — textos oficiais de órgãos públicos)"
+natureza: "texto compilado consolidado pelo Planalto, com marcações de EC, ADCT e dispositivos revogados"
+vigencia: "ativa (com emendas constitucionais incorporadas)"
+
+# Diagnóstico AJ-2021 (bug ordinal <u><sup>o</sup></u>)
+# Hipótese: o bug aparece apenas em leis produzidas/compiladas durante certa janela
+# administrativa (gestão Bolsonaro 2021). CF/1988 é caso de CONTROLE negativo.
+diagnostico_aj2021:
+  bytes_0x80_0x9F: 0
+  bug_ordinal_u_sup_count: 0
+  resultado: "CONTROLE NEGATIVO — zero bytes de janela Windows-1252 exclusiva (0x80-0x9F)
+    e zero ocorrências do bug ordinal <u><sup>o</sup></u>. Consistente com a hipótese
+    AJ-2021: CF é gestão Sarney (1988), 33 anos antes da janela hipotetizada.
+    Ausência esperada, mas registrada como data point para falseamento."
+
+# Conteúdo
+possui_ordinais_textuais: true             # art. 1º, 2º, etc. — usam º/§ corretos em CP1252
+marcadores_normativos_relevantes:
+  - "Emendas Constitucionais incorporadas ao corpo"
+  - "ADCT (Ato das Disposições Constitucionais Transitórias)"
+  - "Redações originais revogadas em <font color> ou <s>"
+  - "Marcações 'Vide Lei nº X' em dispositivos específicos (ex: art. 5º XII — 'Vide Lei nº 9.296, de 1996')"
+
+# Observações operacionais
+observacoes: |
+  Arquivo HTML bruto do Planalto na rota /ccivil_03/constituicao/constituicaocompilado.htm.
+  Tamanho 1.501.025 bytes (~1.5MB) — compilação integral da Constituição atualizada.
+
+  Comportamento HTTP: requer User-Agent de browser real (Mozilla). Requisição curl "nua"
+  foi rejeitada com timeout — documentado para replicabilidade.
+
+  Zero bytes na janela 0x80-0x9F (bytes de controle Windows-1252 exclusivos sobre ISO-8859-1).
+  Isso NÃO significa UTF-8: significa apenas que o arquivo não utiliza os caracteres
+  tipográficos específicos dessa janela (aspas curvas "smart quotes", travessão em, em-dash,
+  ponto final duplo etc.). A política do projeto ainda exige iconv WINDOWS-1252 → UTF-8 por
+  consistência com os demais arquivos do corpus e para cobrir acentos em 0xA0-0xFF.
+
+  Zero ocorrências do bug <u><sup>o</sup></u>. Consistente com hipótese AJ-2021
+  (bug só aparece em leis produzidas/compiladas em janela 2021 sob AJ-Bolsonaro).
+  CF/1988 é Sarney, 33 anos antes da janela — resultado esperado como controle.
+
+  Próximas etapas:
+  - Etapa 0.5 (validação blocante): mojibake score < 0.5%, sha256 match, ausência de
+    artefatos de conversão prematura.
+  - Etapa 1: iconv WINDOWS-1252 → UTF-8, extração HTML → Markdown, criação de
+    inbox/cf-1988-compilada.md com front-matter contendo campo
+    artigos_priorizados_onda1 listando os 8 dispositivos da política editorial.
+
+# Rastreabilidade
+pipeline_version: "1.2"
+etapa_atual: "0-raw-landed"
+proxima_etapa: "0.5-validacao-blocante"

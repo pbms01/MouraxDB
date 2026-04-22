@@ -1,0 +1,124 @@
+# Sidecar v1.2 — Lei nº 13.964/2019 (Pacote Anticrime)
+# Lei de ALTERAÇÃO MÚLTIPLA (altera CP, CPP, LEP, Maria da Penha, Crime Organizado, Interceptação)
+# Pedro Mourão — MPRJ
+
+arquivo: lei-13964-2019.html
+tipo: A
+url_origem: https://www.planalto.gov.br/ccivil_03/_ato2019-2022/2019/lei/l13964.htm
+baixado_em: "2026-04-22T17:36:00-03:00"
+baixado_por: pedro.mourao
+user_agent: "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0 Safari/537.36"
+
+# Integridade
+sha256: "c3330bddf2c74c8a957745d17b45caf2f42141227d2e820a7efdd3820bd94d31"
+bytes: 219503
+
+# HTTP metadata do servidor
+http_content_type: "text/html"
+http_content_length: 217944
+http_last_modified: "2021-08-06T15:07:49Z"
+http_etag: '"22e858d2d48ad71:0"'
+
+# Datas jurídicas
+data_promulgacao: "2019-12-24"
+gestao_promulgacao: "Bolsonaro (Moro na Justiça)"
+data_compilacao_planalto: "2021-08-06"
+gestao_compilacao_planalto: "Bolsonaro AJ"
+
+# Encoding
+encoding_declarado_http: null              # servidor não declara charset no Content-Type
+encoding_declarado_meta: null              # HTML não tem <meta charset>
+encoding_real_detectado: "WINDOWS-1252"    # política Planalto, confirmado por file(1): "Non-ISO extended-ASCII"
+conversao_prevista:
+  de: "WINDOWS-1252"
+  para: "UTF-8"
+  ferramenta: "iconv -f WINDOWS-1252 -t UTF-8"
+
+# Metadados editoriais
+idioma: pt-BR
+licenca: "Domínio público (Lei 9.610/1998, art. 8º, IV)"
+natureza: "lei de alteração múltipla — promulgada 24/12/2019, compilada pelo Planalto em 06/08/2021 (pós-derrubada parcial de vetos)"
+vigencia: "ativa, com dispositivos específicos suspensos ou declarados inconstitucionais (ex: juiz das garantias — ADIs 6298-6305)"
+
+# Diagnóstico AJ-2021 (CORE DO INTERESSE CIENTÍFICO)
+# Hipótese original: o bug <u><sup>o</sup></u> aparece em leis da gestão Bolsonaro 2021.
+# Dados empíricos neste arquivo:
+#   - Bug presente: 3 ocorrências
+#   - Bytes 0x80-0x9F: 213 (todos smart quotes tipográficas — 0x91/0x92/0x93/0x94)
+#   - Last-Modified HTTP: 2021-08-06
+#   - Data de promulgação: 2019-12-24
+# INSIGHT: o bug correlaciona com a data de COMPILAÇÃO (modificação do HTML no Planalto),
+# não com a data de PROMULGAÇÃO da lei. A 13.964/2019 foi promulgada em dezembro/2019
+# (pré-janela hipotetizada), mas o HTML vigente foi re-compilado em agosto/2021
+# (dentro da janela AJ-Bolsonaro). O bug entrou no re-processamento.
+# Isso NÃO refuta a hipótese AJ-2021 — REFINA a variável explicativa de "ano da lei"
+# para "ano da compilação Planalto".
+diagnostico_aj2021:
+  bytes_0x80_0x9F: 213
+  bytes_0x80_0x9F_distribuicao:
+    "0x91_U+2018_left_single_quote": 30
+    "0x92_U+2019_right_single_quote": 30
+    "0x93_U+201C_left_double_quote": 69
+    "0x94_U+201D_right_double_quote": 68
+    interpretacao: "smart quotes tipográficas de Microsoft Word em Windows-1252; assinatura de conteúdo colado de Word durante a compilação do HTML"
+  bug_ordinal_u_sup_count: 3
+  bug_ordinal_contextos:
+    - 'linha 3574: "seguintes partes vetadas da Lei n<u><sup>o</sup></u> 13.964, de 24 de"'
+  resultado: |
+    CONFIRMAÇÃO REFINADA DA HIPÓTESE AJ-2021.
+    A correlação não é com a data de PROMULGAÇÃO (24/12/2019, ainda fora da janela
+    administrativa do AJ que teria introduzido o bug), mas com a data de COMPILAÇÃO
+    do HTML no Planalto (Last-Modified 06/08/2021, dentro da janela AJ).
+    Recomendação: expandir o dataset para incluir Last-Modified de todas as leis do
+    corpus e testar a correlação "data de compilação HTML × presença do bug" em vez
+    de "data de promulgação × presença do bug". Isso pode aumentar o poder
+    explicativo da hipótese sem comprometê-la.
+
+# Conteúdo — mapa de alteração múltipla
+natureza_alteracao_multipla: true
+codigos_e_leis_alteradas:
+  - "Código Penal (DL 2.848/1940): arts. 25, 51, 75, 83, 91, 116, 121, 141, 157, 158, 171, 317, 321, 327, 387, 421, etc."
+  - "Código de Processo Penal (DL 3.689/1941): arts. 3º-A até 3º-F (juiz das garantias), 28 (arquivamento), 28-A (ANPP), 157 (nulidade), 310, 316, etc."
+  - "Lei de Execução Penal (Lei 7.210/1984): arts. 52, 83, 86, 122, etc."
+  - "Lei Maria da Penha (Lei 11.340/2006): art. 12-C"
+  - "Lei das Organizações Criminosas (Lei 12.850/2013): arts. 1º, 2º, 3º-A até 3º-F, 8º, 11, 14, 17, 18, 19, 19-A, 19-B (acordo de colaboração premiada, infiltração virtual)"
+  - "Lei de Interceptação (Lei 9.296/1996): art. 8º-A (captação ambiental)"
+  - "Lei de Identificação Criminal (Lei 12.037/2009): arts. 7º-A até 7º-E (Banco Nacional Multibiométrico e de Impressões Digitais — BNMID)"
+
+marcadores_normativos_relevantes:
+  - "Dispositivos VETADOS destacados em rosa/vermelho no HTML"
+  - "Dispositivos com veto DERRUBADO pelo Congresso restaurados com nota explicativa"
+  - "ADCT e redações originais revogadas em <font color> ou <s>"
+  - "Decisões de suspensão cautelar pelo STF anotadas (juiz das garantias — ADI 6298 e conexas, Min. Fux, 22/01/2020)"
+
+# Observações operacionais
+observacoes: |
+  Arquivo HTML bruto do Planalto. 219.503 bytes. Produzido em Microsoft FrontPage 6.0
+  (meta generator), padrão típico de consolidações pós-2010 do Planalto.
+
+  Comportamento HTTP: idêntico ao da CF/1988 — requer User-Agent browser real.
+
+  Descoberta crítica para a linha de pesquisa AJ-2021:
+  a presença simultânea do bug <u><sup>o</sup></u> (3x) + smart quotes de Word
+  (213 bytes 0x80-0x9F, distribuídos exclusivamente em 0x91/0x92/0x93/0x94)
+  + Last-Modified em 06/08/2021 sugere que a compilação foi feita por cópia de
+  documento Word durante a gestão AJ-Bolsonaro.
+
+  O arquivo contém a LEI INTEGRAL, com:
+  - corpo promulgado em 24/12/2019;
+  - redações restauradas após derrubada de vetos pelo Congresso (abril/2021);
+  - notas de acórdãos suspendendo dispositivos (ADI 6298 juiz das garantias).
+
+  Esta é uma lei de ALTERAÇÃO MÚLTIPLA: distinguir no chunking entre (a) dispositivos
+  PRÓPRIOS da Lei 13.964 (regras de vigência, conflito, etc.) e (b) blocos de ALTERAÇÃO
+  que reescrevem dispositivos de outros códigos (CP, CPP, LEP, etc.). Os blocos de
+  alteração devem ser chunked com identificador duplo: "lei 13.964 art. X altera CPP art. Y".
+
+  Este arquivo é o PRIMEIRO teste de falseamento forte da hipótese AJ-2021: lei
+  promulgada em 2019 (pré-janela) com evidência de compilação em 2021 (dentro da janela)
+  — bug presente como predito sob a hipótese refinada.
+
+# Rastreabilidade
+pipeline_version: "1.2"
+etapa_atual: "0-raw-landed"
+proxima_etapa: "0.5-validacao-blocante"
