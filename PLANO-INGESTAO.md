@@ -27,7 +27,7 @@
 | Fase | Descrição | Status |
 |------|-----------|--------|
 | 0 | Infraestrutura e repositório Git | ✅ Concluído |
-| 0.5 | Landing zone raw/ + sidecar .source.yaml + LFS | 🟡 Em andamento — estrutura criada em 2026-04-22, 3 sidecars legados populados |
+| 0.5 | Landing zone raw/ + sidecar .source.yaml + LFS | 🟡 Em andamento — estrutura criada em 2026-04-22; **A-normativas = 10 documentos com sidecar v1.2 completo** (CF/1988, CP/1940, CPP/1941 + leis 12.737/2012, 12.965/2014, 13.718/2018, 13.964/2019, 14.132/2021, 14.155/2021, 14.188/2021 — as 3 legadas retrofited; faltam B, C, D, E, F, G, H) |
 | 1 | Bootstrap do vocabulário | ⏳ Pendente — bloqueado pelo Critério 1 (cobertura dos 8 tipos em raw/) |
 | 2 | Prompts de extração por tipo | ⏳ Pendente |
 | 3 | Golden dataset inicial | ⏳ Pendente |
@@ -65,9 +65,18 @@ ingestão futura depende dela. O que é verificável é a estrutura:
 - [x] 8 subpastas raw/ criadas com .gitkeep
 - [x] .gitattributes com filtros LFS para pdf/epub
 - [x] _AGENTS/raw-protocol.md documentando o sidecar
-- [x] 3 sidecars retroativos para legado pré-v1.2 (lei-12737, lei-14155,
-      lei-12965) com sha256:null e observacoes:legado-pre-v1.2
+- [x] 3 sidecars retroativos para legado pré-v1.2 RETROFITED para v1.2 completo
+      (lei-12737/2012, lei-12965/2014, lei-14155/2021 — agora com sha256, ETag,
+      Last-Modified, encoding_real_detectado e diagnostico_aj2021)
+- [x] 7 sidecars v1.2 nativos (cf-1988-compilada, cp-2848-compilado,
+      cpp-3689-compilado, lei-13718/2018, lei-13964/2019, lei-14132/2021,
+      lei-14188/2021) — todos com cadeia de custódia HTTP completa
+- [x] _AGENTS/hot-articles.yaml v0.2 — camada de priorização declarativa
+      sobre L0, 43 artigos hot + 3 hot_laws + 10 pareamentos transversais
 - [ ] git lfs install executado no Windows (Pedro — uma vez por máquina)
+- [ ] Etapa 0.5 propriamente dita (validação bloqueante de mojibake score,
+      sha256 match e ausência de artefatos) ainda não executada sobre os
+      10 documentos em raw/A-normativas/ — destrava a Fase 1
 
 ---
 
@@ -145,8 +154,20 @@ done
 ```
 
 A Fase 1 só destrava quando cada um dos 8 tipos tiver ≥ mínimo da tabela
-acima. Estado atual: A=3 (legado pré-v1.2), B=0, C=0, D=0, E=0, F=0, G=0,
-H=0 — insuficiente para bootstrap.
+acima. Estado atual (2026-04-22, pós-rodada Trindade Normativa):
+**A=10 (já ultrapassa o teto de 4 — ver nota abaixo)**, B=0, C=0, D=0, E=0,
+F=0, G=0, H=0 — insuficiente para bootstrap por falta dos 7 outros tipos.
+
+**Nota sobre A=10 vs. teto=4:** o teto de 4 do Critério 1 é orientativo para
+o **bootstrap inicial do vocabulário**. A coleta agressiva de A foi decisão
+deliberada para (a) cobrir os 3 diplomas-base do domínio penal (CF, CP, CPP)
++ todas as leis especiais que tipificam crimes digitais ou alteram CP/CPP;
+(b) testar empiricamente as hipóteses de encoding e ordinal Planalto sob
+diversidade de origem editorial; (c) construir o índice de hot-articles v0.2
+com lastro nos textos integrais. Para o bootstrap propriamente dito (Fase 1),
+basta selecionar 4 dos 10 — provavelmente CP+CPP+CF+Lei 14.155/2021 (ou
+13.964/2019) para cobrir os três casos do Critério 3 (alteração inline,
+estável e mutação jurisprudencial).
 
 ---
 
@@ -545,7 +566,15 @@ simples no delimitador. Verificar tamanho com `wc -c` após escrita.
 | f6a1686 | chore: forçar LF em todos os arquivos de texto (eol=lf) | 2026-04-22 |
 | 458ef3a | docs: plano de ingestão v1.1 + extensões de schema (eficacia_condicionada, norma_com_eficacia_condicionada) | 2026-04-22 |
 | 2f4083a | feat: ingestão Tipo A — leis 12.737/2012, 14.155/2021, 12.965/2014 + regra encoding Planalto (Windows-1252) | 2026-04-22 |
-| pendente | refactor: pipeline v1.2 — raw/ landing zone + sidecar source.yaml + etapas 0/0.5 formalizadas | 2026-04-22 |
+| (push e920512) | refactor: pipeline v1.2 — raw/ landing zone + sidecar source.yaml + etapas 0/0.5 formalizadas | 2026-04-22 |
+| (push e920512) | feat: rodada CF/1988 + Lei 13.964/2019 — refutação da hipótese AJ-2021 v1 do bug ordinal | 2026-04-22 |
+| (push e920512) | retrofit: 3 sidecars legados → v1.2 completo (sha256, ETag, Last-Modified, encoding_real) | 2026-04-22 |
+| (push e920512) | raw(A): CP 2848/1940 compilado + sidecar (Etapa 0) — coexistência de templates ~6,5% bug | 2026-04-22 |
+| (push e920512) | raw(A): CPP 3689/1941 compilado + sidecar (Etapa 0) — coexistência de templates ~30,4% bug | 2026-04-22 |
+| (push e920512) | _AGENTS: hot-articles v0.2 — 14 mudanças aprovadas, 43 artigos hot + 3 hot_laws | 2026-04-22 |
+| pendente | docs: AGENTS.md §155-170 — promove hipótese v3 (estratificação por bloco editorial) | 2026-04-22 |
+| pendente | docs: PLANO-INGESTAO.md — Fase 0.5 com 10 documentos em A-normativas | 2026-04-22 |
+| pendente | docs: STATUS.md — painel de bordo do projeto (consolidação) | 2026-04-22 |
 
 ---
 
