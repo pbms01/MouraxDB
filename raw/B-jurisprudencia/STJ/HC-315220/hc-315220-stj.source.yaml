@@ -1,0 +1,58 @@
+# raw/B-jurisprudencia/STJ/HC-315220/hc-315220-stj.source.yaml
+arquivo: hc-315220-stj.pdf
+tipo: B
+url_origem: "https://processo.stj.jus.br/ (Revista Eletrônica de Jurisprudência — parâmetros exatos não preservados)"
+baixado_em: "2026-04-22T14:12:00-03:00"
+baixado_por: pedro.mourao
+sha256: e85bd95cf36ff5ffa436fca7a47f9bb2dcc1994d26005b89bb64726c4380c3f3
+encoding_declarado_http: null
+encoding_real_detectado: null          # PDF — não aplica
+conversao_prevista: "pdf→md via pdftotext -layout + segmenta_acordao.py (perfil STJ)"
+paginas: 58
+idioma: ptBR
+licenca: "domínio público (decisão judicial pública — Lei 9.610/98 art. 8º IV)"
+
+# Extensões §4.4 — Tipo B
+tribunal: STJ
+instrumento: acordao
+numero_processo: "HC 315.220/RS (2015/0019757-0)"
+relator: "Ministra Maria Thereza de Assis Moura"
+orgao_julgador: "Sexta Turma"
+data_julgamento: "2015-09-15"
+data_publicacao: "2015-10-09"
+
+assinatura_digital:
+  presente: false
+  formato: Revista_Eletronica_STJ
+  certificados: null
+
+paginacao_oficial_preservada: true
+
+fonte_confiavel: pbm_s
+
+observacoes: >
+  PDF obtido via Revista Eletrônica de Jurisprudência do STJ — producer
+  "REVISTA ELETRÔNICA DE JURISPRUDÊNCIA", creator "wPDF by wpCubed GmbH",
+  author metadado "SUPERIOR TRIBUNAL DE JUSTIÇA". CreationDate do PDF:
+  2025-02-14 (renderização recente da Revista, não a data do acórdão).
+
+  Não carrega ICP-Brasil — pdfsig confirma ausência de assinaturas.
+  Custódia ancorada na coleta pelo próprio autor no portal oficial do STJ
+  (fonte_confiavel: pbm_s). URL canônica com parâmetros exatos não foi
+  preservada no momento da coleta; o documento é publicamente acessível
+  via Revista Eletrônica por número de registro 201500197570 + sequencial
+  1406511 (inferidos do rodapé institucional). Binário fonte estava no
+  OneDrive pessoal do autor em "Prova Digital/HABEAS CORPUS 315.220 -
+  Quebra de email.pdf" no momento do depósito em raw/.
+
+  Peculiaridades do documento a preservar no MD de inbox/:
+  (a) rodapé institucional "Documento: 1406511 - Inteiro Teor do Acórdão
+      - Site certificado - DJe: 09/10/2015" em todas as 58 páginas;
+  (b) o rodapé referencia "Página N de 8" (paginação lógica do acórdão
+      original assinado), não "Página N de 58" (paginação física do PDF
+      re-renderizado pelo wPDF) — discrepância é propriedade do documento,
+      não artefato da conversão; preservar na Etapa 1;
+  (c) ementa aparece duas vezes (p.1 página de abertura + dentro do
+      relatório) — propriedade do documento, não duplicação artificial;
+  (d) voto-vista do Min. Sebastião Reis Júnior a partir da p.57 — candidato
+      a L0 opcional adicional além dos 3 mínimos (ementa + holding + ratio).
