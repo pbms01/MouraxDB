@@ -1,16 +1,42 @@
+# ─── Normalização de line endings ───
+# Estratégia: armazenar SEMPRE LF no objeto Git (padrão Unix, portável),
+# deixando o working copy livre (Windows pode usar CRLF, sem warnings).
+# Atributos por extensão vencem o core.autocrlf global.
+#
+# Silencia o warning recorrente "CRLF will be replaced by LF" do Git for Windows.
+
+# Default: detecta texto, normaliza para LF no repo
 * text=auto eol=lf
-*.gitkeep binary
 
-# Git LFS — binários pesados em raw/ (landing zone)
-# Instalar no Windows: git lfs install (uma vez por máquina)
-# Padrões aplicam-se recursivamente a raw/ em qualquer tipo (A-H).
-raw/**/*.pdf  filter=lfs diff=lfs merge=lfs -text
-raw/**/*.epub filter=lfs diff=lfs merge=lfs -text
+# ─── Texto explícito (LF no objeto Git) ───
+*.md         text eol=lf
+*.yaml       text eol=lf
+*.yml        text eol=lf
+*.html       text eol=lf
+*.htm        text eol=lf
+*.xml        text eol=lf
+*.json       text eol=lf
+*.txt        text eol=lf
+*.csv        text eol=lf
+*.py         text eol=lf
+*.sh         text eol=lf
+*.gitignore  text eol=lf
+*.gitattributes text eol=lf
 
-# Formatos estruturados em raw/ permanecem em texto (diffável, blame-compatível)
-raw/**/*.html text eol=lf
-raw/**/*.txt  text eol=lf
-raw/**/*.md   text eol=lf
-raw/**/*.json text eol=lf
-raw/**/*.xml  text eol=lf
-raw/**/*.yaml text eol=lf
+# ─── Binários — NUNCA normalizar (evita corrupção silenciosa) ───
+*.pdf        binary
+*.png        binary
+*.jpg        binary
+*.jpeg       binary
+*.gif        binary
+*.zip        binary
+*.tar.gz     binary
+*.docx       binary
+*.xlsx       binary
+*.pptx       binary
+*.db         binary
+*.sqlite     binary
+
+# ─── Caso especial: arquivos do Planalto vêm com encoding mixed ───
+# Mantemos texto, mas line endings da fonte podem ser CRLF — git normaliza no commit.
+raw/A-normativas/*.html  text eol=lf
