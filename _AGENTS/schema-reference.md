@@ -51,8 +51,27 @@ redacao_vigente_desde:   # "YYYY-MM-DD"
 alterado_por:            # lista de leis
 relacoes:
   - tipo:                # revoga | especializa | fundamenta | aplica | contradiz
+                         # eficacia_condicionada | condiciona_eficacia
     id:                  # ID do L0 relacionado
+    nota:                # max 100 tokens — contexto da relação (obrigatório para
+                         # eficacia_condicionada e condiciona_eficacia)
 ```
+> **Tipos de relação para mutação jurisprudencial (sem alteração de texto):**
+>
+> `eficacia_condicionada` (L0 normativo → L0 jurisprudencial): norma textualmente
+> vigente cujo âmbito de aplicação foi condicionado/redefinido por decisão judicial.
+> O L0 normativo permanece ativo — NÃO vai para superados/.
+> Exemplo: Marco Civil art. 19 → ADI 6.031 (STF condicionou responsabilidade civil
+> de plataformas ao descumprimento de ordem judicial prévia de remoção).
+>
+> `condiciona_eficacia` (L0 jurisprudencial → L0 normativo): decisão que redefine
+> o âmbito de aplicação de uma norma. Link reverso obrigatório ao
+> eficacia_condicionada correspondente.
+>
+> **Distinção crítica:** mutação jurisprudencial ≠ revogação.
+> Se o pipeline encontrar um L0 normativo com relacao eficacia_condicionada
+> durante a harmonização, NÃO propor status: superado — o texto da norma
+> continua vigente. A eficácia é que foi condicionada.
 Yield mínimo: 1 L0 por unidade normativa independente (artigo/inciso/alínea).
 ---
 ## TIPO B — Jurisprudência
@@ -196,12 +215,23 @@ Tensões não são anotações opcionais — são parte constitutiva da síntese
 tensoes:
   - claim_a:            # ID do L0 de autoridade superior
     claim_b:            # ID do L0 divergente
-    tipo_tensao:        # holding_vs_doutrina | tribunais_conflitantes |
-                        # norma_vs_pratica | holding_vs_voto_divergente
+    tipo_tensao:        # holding_vs_doutrina | tribunais_conflitantes | norma_vs_pratica
+                        # | holding_vs_voto_divergente | norma_com_eficacia_condicionada
     status_resolucao:   # resolvido_pelo_leading_case | questao_aberta |
                         # divergencia_doutrinaria
     nota:               # max 100 tokens — descrição em linguagem natural
 ```
+> **Tipo de tensão norma_com_eficacia_condicionada:**
+> Usar quando uma norma textualmente vigente tem seu âmbito de aplicação
+> condicionado por leading case — o texto permanece intacto mas a eficácia
+> foi redefinida pelo STF/STJ.
+>
+> Diferente de norma_vs_pratica (conflito não resolvido entre norma e aplicação
+> real) — aqui há resolução pelo leading case com status_resolucao:
+> resolvido_pelo_leading_case.
+>
+> Exemplo canônico: Marco Civil art. 19 + ADI 6.031 (STF).
+> O campo nota do tensoes deve identificar o leading case e resumir a condição.
 ---
 ## REGRAS TRANSVERSAIS DE TEMPORALIDADE
 - valido_desde / valido_ate habilitam point-in-time retrieval determinístico
