@@ -1,0 +1,559 @@
+# KB-PD — Índice de Artigos Prioritários por Domínio (v0.2)
+# Camada de priorização declarativa SOBRE o L0. Não modifica o L0 —
+# orienta retrieval/recall/L2 sobre quais artigos concentram o
+# valor semântico do domínio "prova digital e direito penal digital".
+#
+# Princípio arquitetural: L0 permanece agnóstico de domínio. Múltiplas
+# "lentes" de priorização podem coexistir sem reescrita do corpus.
+#
+# Versão: v0.2 (incorpora as 14 mudanças aprovadas em revisão de 2026-04-22)
+# Diff v0.1 → v0.2 ao final do arquivo (seção `changelog`)
+# Próxima revisão sugerida: após primeira ingestão em lote (Fase 5)
+
+dominio: prova_digital_e_direito_penal_digital
+versao: v0.2
+ultima_revisao: 2026-04-22
+revisor: pedro.mourao
+estado: aprovado_para_bootstrap
+
+# Critério de inclusão adotado (Critério A — estrito, com escape válvula):
+# Inclui-se artigo se a sua aplicação ao caso de PD apresenta dimensão
+# qualitativamente diferente do caso de prova física análoga (ex: dolo
+# em invasão de dispositivo levanta questões probatórias específicas
+# de log de acesso e atribuição). Artigos meramente "frequentes" mas
+# sem diferencial PD não entram (ex: art. 59 dosimetria — fica fora).
+
+# Convenção de id_l0_esperado: <fonte>-art<n>-<sub> conforme schema-reference.md
+# (a Etapa 2 produzirá esses IDs ao chunkar; o índice serve como contrato
+# antecipado para validação da cobertura)
+
+cp:                          # Decreto-Lei 2.848/1940 (Código Penal)
+  fonte_canonica: cp-2848-compilado
+  artigos:
+    # ── Parte Geral (estrutura dogmática com diferencial PD) ──
+    - art: "1º"
+      rotulo: "legalidade penal (nullum crimen sine lege)"
+      id_l0_esperado: cp-art1-caput
+      relevancia_pd: alta
+      nota: "Espelho infraconstitucional do CF art. 5 XXXIX. Eixo de
+        debate sobre tipicidade aberta em condutas digitais novas
+        (ex: deepfakes não cobertos pelo art. 218-C, ataques DDoS
+        sem subsunção clara). Pareamento direto com CF 5 XXXIX."
+
+    - art: "13"
+      rotulo: "relação de causalidade (e omissão imprópria)"
+      id_l0_esperado: cp-art13-caput
+      relevancia_pd: alta
+      nota: "Diferencial PD: imputação causal em arquiteturas distribuídas
+        (cadeias de bots, intermediários técnicos, propagação viral).
+        §2º (omissão imprópria) é eixo de discussão sobre dever de
+        cuidado de provedores de aplicação."
+
+    - art: "18"
+      rotulo: "dolo e culpa"
+      id_l0_esperado: cp-art18-caput
+      relevancia_pd: alta
+      nota: "Diferencial PD: prova do elemento subjetivo via metadados,
+        logs e padrão de comportamento digital. Atribuição de dolo em
+        ambiente de identidades plásticas é problema probatório central."
+
+    - art: "29"
+      rotulo: "concurso de pessoas"
+      id_l0_esperado: cp-art29-caput
+      relevancia_pd: alta
+      nota: "Diferencial PD: coautoria/participação em crimes-rede
+        (grupos de Telegram, fóruns de hacking, marketplaces). §1º e
+        §2º (cooperação dolosamente distinta) cabem ao L0 separado."
+
+    # ── Tipos especiais (núcleo do domínio) ──
+    - art: "147-A"
+      rotulo: "perseguição (stalking)"
+      id_l0_esperado: cp-art147a-caput
+      fonte_insercao: lei-14132-2021
+      relevancia_pd: alta
+      nota: "Frequente em casos com prova digital — mensagens, redes sociais"
+
+    - art: "147-B"
+      rotulo: "violência psicológica contra mulher"
+      id_l0_esperado: cp-art147b-caput
+      fonte_insercao: lei-14188-2021
+      relevancia_pd: alta
+      nota: "Vinculação com Lei Maria da Penha; prova frequentemente em mensagens"
+
+    - art: "154-A"
+      rotulo: "invasão de dispositivo informático"
+      id_l0_esperado: cp-art154a-caput-redacao-2021
+      id_l0_esperado_versao_anterior: cp-art154a-caput-redacao-2012
+      fonte_insercao: lei-12737-2012
+      fonte_alteracao: lei-14155-2021
+      caso_validacao_pipeline: "Critério 3a — separação de redações inline"
+      relevancia_pd: critica
+      nota: "Tipo penal-base do domínio; obrigatório no bootstrap como par"
+
+    - art: "154-A §1º a §6º"
+      rotulo: "invasão de dispositivo — modalidades qualificadas"
+      id_l0_esperado_prefixo: cp-art154a-par
+      relevancia_pd: alta
+      nota: "Chunkar cada parágrafo separadamente (qualificadoras autônomas)"
+
+    - art: "155 §4º-B"
+      rotulo: "furto eletrônico mediante fraude"
+      id_l0_esperado: cp-art155-par4b
+      fonte_insercao: lei-14155-2021
+      relevancia_pd: critica
+
+    - art: "155 §4º-C"
+      rotulo: "furto eletrônico — causa de aumento (servidor mantido fora do país)"
+      id_l0_esperado: cp-art155-par4c
+      fonte_insercao: lei-14155-2021
+      relevancia_pd: alta
+      nota: "Conflito de jurisdição transnacional — relevante para MLAT/Budapeste"
+
+    - art: "171 §2º-A"
+      rotulo: "fraude eletrônica"
+      id_l0_esperado: cp-art171-par2a
+      fonte_insercao: lei-14155-2021
+      relevancia_pd: critica
+
+    - art: "171 §2º-B"
+      rotulo: "fraude eletrônica — causa de aumento"
+      id_l0_esperado: cp-art171-par2b
+      fonte_insercao: lei-14155-2021
+      relevancia_pd: alta
+
+    - art: "218-C"
+      rotulo: "divulgação de cena de estupro/sexo/nudez sem consentimento"
+      id_l0_esperado: cp-art218c-caput
+      fonte_insercao: lei-13718-2018
+      relevancia_pd: alta
+      nota: "Tipo central em casos de revenge porn"
+
+cpp:                         # Decreto-Lei 3.689/1941 (CPP)
+  fonte_canonica: cpp-3689-compilado
+  artigos:
+    # ── Inquérito policial (procedimento) ──
+    - art: "6"
+      rotulo: "providências da autoridade policial ao tomar conhecimento da infração"
+      id_l0_esperado: cpp-art6-caput
+      desdobramento_l0_recomendado:
+        - inciso: "II"
+          id_l0_esperado: cpp-art6-ii
+          rotulo: "apreender objetos relacionados ao fato"
+          relevancia_pd: critica
+          nota: "Base legal da apreensão de dispositivos no flagrante;
+            interage com art. 240 (escopo) e art. 6º da Lei 12.965/2014
+            (Marco Civil — guarda de registros)."
+        - inciso: "VII"
+          id_l0_esperado: cpp-art6-vii
+          rotulo: "determinar a perícia"
+          relevancia_pd: alta
+          nota: "Gatilho processual da perícia digital; pareia com art. 159
+            (perícia oficial) e art. 158-C (coleta e fixação)."
+      relevancia_pd: alta
+      nota: "Caput entra como L0 por completude; incisos II e VII recebem
+        L0 próprios pela autonomia probatória."
+
+    # ── Investigação digital específica ──
+    - art: "13-A"
+      rotulo: "preservação imediata de registros telemáticos (vítima)"
+      id_l0_esperado: cpp-art13a
+      relevancia_pd: critica
+      nota: "Preservation order — base para requisição a provedores"
+
+    - art: "13-B"
+      rotulo: "geolocalização em tempo real"
+      id_l0_esperado: cpp-art13b
+      relevancia_pd: critica
+      nota: "Trace-back; reserva de jurisdição"
+
+    # ── Teoria da prova ──
+    - art: "155"
+      rotulo: "livre convicção motivada do juiz"
+      id_l0_esperado: cpp-art155-caput
+      relevancia_pd: alta
+      nota: "Limites do convencimento sobre prova digital"
+
+    - art: "157"
+      rotulo: "inadmissibilidade da prova ilícita"
+      id_l0_esperado: cpp-art157-caput
+      relevancia_pd: critica
+      nota: "Pareamento direto com CF art. 5º LVI; teoria dos frutos da árvore envenenada"
+
+    # ── Cadeia de custódia (Lei 13.964/2019) ──
+    - art: "158-A"
+      rotulo: "cadeia de custódia — definição"
+      id_l0_esperado: cpp-art158a
+      fonte_insercao: lei-13964-2019
+      relevancia_pd: critica
+      nota: "Norma-chave para impugnação probatória; eixo do leading case HC 841.778/RS"
+
+    - art: "158-B"
+      rotulo: "etapas da cadeia (10 etapas tipificadas)"
+      id_l0_esperado: cpp-art158b
+      fonte_insercao: lei-13964-2019
+      relevancia_pd: critica
+      nota: "Cada inciso (I a X) pode merecer L0 próprio na Etapa 2"
+
+    - art: "158-C"
+      rotulo: "coleta e fixação"
+      id_l0_esperado: cpp-art158c
+      fonte_insercao: lei-13964-2019
+      relevancia_pd: alta
+
+    - art: "158-D"
+      rotulo: "acondicionamento (recipiente lacrado, identificado, datado)"
+      id_l0_esperado: cpp-art158d
+      fonte_insercao: lei-13964-2019
+      relevancia_pd: alta
+
+    - art: "158-E"
+      rotulo: "central de custódia"
+      id_l0_esperado: cpp-art158e
+      fonte_insercao: lei-13964-2019
+      relevancia_pd: media
+
+    - art: "158-F"
+      rotulo: "perícia (e devolução do vestígio)"
+      id_l0_esperado: cpp-art158f
+      fonte_insercao: lei-13964-2019
+      relevancia_pd: alta
+
+    # ── Perícia ──
+    - art: "159"
+      rotulo: "exame de corpo de delito por perito oficial"
+      id_l0_esperado: cpp-art159-caput
+      relevancia_pd: critica
+      nota: "Núcleo da disciplina pericial. §3º (assistente técnico) é
+        eixo de impugnação em perícia digital — paridade de armas e
+        revisão de laudo por terceiro independente."
+
+    # ── Busca e apreensão ──
+    - art: "240"
+      rotulo: "busca e apreensão — escopo (domiciliar e pessoal)"
+      id_l0_esperado: cpp-art240-caput
+      relevancia_pd: alta
+
+    - art: "241"
+      rotulo: "busca pessoal — flagrante e fundadas razões"
+      id_l0_esperado: cpp-art241
+      relevancia_pd: media
+
+    - art: "243"
+      rotulo: "mandado — requisitos formais"
+      id_l0_esperado: cpp-art243
+      relevancia_pd: alta
+      nota: "Precisão do mandado é eixo de impugnação em apreensão de dispositivos"
+
+    - art: "244"
+      rotulo: "busca pessoal sem mandado (hipóteses)"
+      id_l0_esperado: cpp-art244
+      relevancia_pd: media
+
+    - art: "245"
+      rotulo: "execução do mandado em domicílio"
+      id_l0_esperado: cpp-art245
+      relevancia_pd: alta
+
+    - art: "248"
+      rotulo: "ordem de exibição/apresentação"
+      id_l0_esperado: cpp-art248
+      relevancia_pd: media
+
+    # ── Medidas cautelares ──
+    - art: "282"
+      rotulo: "cautelares pessoais — princípios (necessidade e adequação)"
+      id_l0_esperado: cpp-art282-caput
+      relevancia_pd: alta
+      nota: "Diferencial PD: cautelares atípicas para neutralizar
+        risco digital (suspensão de contas, bloqueio de criptoativos,
+        proibição de uso de dispositivo). §6º (cautelares ofício)
+        relevante após Pacote Anticrime."
+
+cf:                          # CF/1988
+  fonte_canonica: cf-1988-compilada
+  artigos:
+    - art: "5 X"
+      rotulo: "intimidade, vida privada, honra, imagem"
+      id_l0_esperado: cf-art5-x
+      relevancia_pd: critica
+      nota: "Eixo constitucional — direito à privacidade e honra digital"
+
+    - art: "5 XI"
+      rotulo: "inviolabilidade do domicílio"
+      id_l0_esperado: cf-art5-xi
+      relevancia_pd: alta
+      nota: "Promovido para hot-articles standalone (era apenas nota
+        em par_busca_apreensao). Diferencial PD: STF estende
+        inviolabilidade ao 'domicílio digital' (HC 91.867 e correlatos);
+        eixo de discussão sobre acesso remoto a nuvem após apreensão."
+
+    - art: "5 XII"
+      rotulo: "sigilo das comunicações"
+      id_l0_esperado: cf-art5-xii
+      relevancia_pd: critica
+      nota: "Cláusula de exceção (autorização judicial); LGPD; Lei 9.296/96"
+
+    - art: "5 XXXIX"
+      rotulo: "legalidade penal estrita (nullum crimen, nulla poena sine lege)"
+      id_l0_esperado: cf-art5-xxxix
+      relevancia_pd: alta
+      nota: "Substitui CF 5 II (legalidade genérica) que estava na lacuna —
+        XXXIX é a versão penal específica. Pareamento direto com CP art. 1º.
+        Eixo do debate sobre tipicidade de condutas digitais novas."
+
+    - art: "5 LIV"
+      rotulo: "devido processo legal"
+      id_l0_esperado: cf-art5-liv
+      relevancia_pd: alta
+
+    - art: "5 LV"
+      rotulo: "contraditório e ampla defesa"
+      id_l0_esperado: cf-art5-lv
+      relevancia_pd: alta
+      nota: "Eixo de impugnação probatória — acesso à prova, perícia bilateral"
+
+    - art: "5 LVI"
+      rotulo: "inadmissibilidade da prova ilícita"
+      id_l0_esperado: cf-art5-lvi
+      relevancia_pd: critica
+      nota: "Pareamento direto com CPP art. 157"
+
+    - art: "5 LXIII"
+      rotulo: "direito ao silêncio (autoincriminação)"
+      id_l0_esperado: cf-art5-lxiii
+      relevancia_pd: alta
+      nota: "Aplicação à entrega forçada de senha — debate em curso"
+
+    - art: "5 LXXVIII"
+      rotulo: "razoável duração do processo"
+      id_l0_esperado: cf-art5-lxxviii
+      relevancia_pd: media
+      nota: "Relevante para perícia digital com backlog crônico"
+
+    - art: "144 §1º I"
+      rotulo: "competência da Polícia Federal — infrações com repercussão interestadual ou internacional"
+      id_l0_esperado: cf-art144-par1-i
+      relevancia_pd: alta
+      nota: "Substitui §1º IV da lacuna. Inciso I é o eixo correto da
+        competência em crimes cibernéticos transnacionais (ataques de
+        origem estrangeira, fraudes com servidor no exterior — pareia
+        com CP 155 §4º-C)."
+
+    - art: "144 §1º III"
+      rotulo: "competência da Polícia Federal — necessidade de repressão uniforme"
+      id_l0_esperado: cf-art144-par1-iii
+      relevancia_pd: media
+      nota: "Cláusula complementar ao inciso I — fundamenta atração de
+        competência federal por necessidade de uniformidade na resposta
+        a fenômenos criminais difusos (ex: ransomware em série)."
+
+# ─────────────────────────────────────────────────────────────────────
+# hot_laws — leis especiais como objetos de primeira classe
+# ─────────────────────────────────────────────────────────────────────
+# Razão: três leis funcionam tanto como FONTE de inserção (atualizam
+# CP/CPP) quanto como CORPO normativo autônomo cujos dispositivos
+# próprios merecem L0 e priorização. Tratar só como "fonte_insercao"
+# perderia os artigos que vivem fora do CP/CPP.
+hot_laws:
+  - lei: "12.965/2014"
+    apelido: "Marco Civil da Internet"
+    fonte_canonica: lei-12965-2014   # a coletar (raw/A-normativas/)
+    relevancia_pd: critica
+    artigos_chave:
+      - art: "10"
+        rotulo: "guarda e disponibilização de registros — princípios"
+        relevancia_pd: critica
+        nota: "Reserva de jurisdição para acesso a conteúdo; pareia com CF 5 XII"
+      - art: "13"
+        rotulo: "guarda de registros de conexão (ISP) — 1 ano"
+        relevancia_pd: critica
+      - art: "15"
+        rotulo: "guarda de registros de acesso a aplicações (provedor de aplicação) — 6 meses"
+        relevancia_pd: critica
+      - art: "19"
+        rotulo: "responsabilidade civil por conteúdo de terceiros"
+        relevancia_pd: alta
+        nota: "Caso de validação Critério 3c — combinar com ADI 6.031 (modulação)"
+      - art: "22"
+        rotulo: "requisição judicial de registros"
+        relevancia_pd: critica
+        nota: "Procedimento concreto da preservation order (par com CPP 13-A)"
+      - art: "23"
+        rotulo: "sigilo dos requerimentos"
+        relevancia_pd: media
+
+  - lei: "13.964/2019"
+    apelido: "Pacote Anticrime"
+    fonte_canonica: lei-13964-2019   # a coletar; já presente como fonte_insercao em CPP 158-A a 158-F
+    relevancia_pd: alta
+    nota: "Para os arts. modificadores de CP/CPP, o L0 vai no código
+      compilado (point-in-time). A lei autônoma serve como referência
+      de exposição de motivos e dispositivos próprios não absorvidos
+      (ex: art. 14-A — defesa de policial)."
+    artigos_chave: []   # a definir após coleta
+
+  - lei: "14.155/2021"
+    apelido: "Crimes cibernéticos — patrimoniais"
+    fonte_canonica: lei-14155-2021
+    relevancia_pd: critica
+    nota: "Para CP 154-A, 155 §4º-B/C, 171 §2º-A/B o L0 fica no CP
+      compilado. Arts. 2º a 4º da lei (alterações do CPP sobre
+      competência em crimes cibernéticos) merecem L0 autônomo."
+    artigos_chave:
+      - art: "2º"
+        rotulo: "alteração do CPP art. 70 §4º — competência em fraude eletrônica"
+        relevancia_pd: critica
+        nota: "Foro do domicílio da vítima — exceção à regra geral de competência"
+
+# ─────────────────────────────────────────────────────────────────────
+# Pareamentos transversais — pares que MUITO frequentemente aparecem
+# juntos em fundamentação de peças. Sinalizar para o ranker como
+# co-cited.
+# ─────────────────────────────────────────────────────────────────────
+pareamentos_transversais:
+  - id: par_ilicitude_probatoria
+    nodes: [cf-art5-lvi, cpp-art157-caput]
+    nota: "Constituição + lei processual sobre o mesmo princípio"
+
+  - id: par_sigilo_comunicacoes
+    nodes: [cf-art5-xii, cpp-art13b, cpp-art13a, lei12965-art10, lei12965-art22]
+    nota: "Reserva constitucional + dispositivos processuais de quebra
+      + procedimento do Marco Civil"
+
+  - id: par_cadeia_custodia
+    nodes: [cpp-art158a, cpp-art158b, cpp-art158c, cpp-art158d, cpp-art158e, cpp-art158f]
+    nota: "Bloco temático integral da Lei 13.964/2019"
+
+  - id: par_invasao_dispositivo
+    nodes: [cp-art154a-caput-redacao-2021, cp-art154a-caput-redacao-2012]
+    nota: "Caso de validação Critério 3a — point-in-time retrieval"
+
+  - id: par_busca_apreensao
+    nodes: [cf-art5-xi, cpp-art240-caput, cpp-art243, cpp-art245, cpp-art6-ii]
+    nota: "Inviolabilidade do domicílio + procedimento processual + base
+      do flagrante (CPP 6 II). CF 5 XI agora está no hot-articles
+      standalone."
+
+  # ── Novos em v0.2 ──
+  - id: par_legalidade_penal
+    nodes: [cf-art5-xxxix, cp-art1-caput]
+    nota: "Espelho constitucional + dispositivo legal — eixo do debate
+      sobre tipicidade em condutas digitais novas"
+
+  - id: par_imputacao_subjetiva_digital
+    nodes: [cp-art13-caput, cp-art18-caput, cp-art29-caput]
+    nota: "Trindade da imputação penal aplicada ao ambiente digital —
+      causalidade, dolo/culpa e concurso. Pareia internamente; serve
+      de query expansion quando peça discute atribuição em rede."
+
+  - id: par_pericia_e_paridade
+    nodes: [cpp-art159-caput, cpp-art158c, cpp-art158f, cpp-art6-vii]
+    nota: "Cadeia processual da perícia: gatilho (6º VII), execução
+      oficial (159), coleta (158-C) e devolução (158-F). Eixo de
+      impugnação por inobservância de paridade técnica."
+
+  - id: par_competencia_pf_cibernetica
+    nodes: [cf-art144-par1-i, cf-art144-par1-iii, cp-art155-par4c]
+    nota: "Triângulo de competência da PF em crimes cibernéticos
+      transnacionais"
+
+  - id: par_marco_civil_guarda
+    nodes: [lei12965-art13, lei12965-art15, lei12965-art22, cpp-art13a]
+    nota: "Regime de guarda + procedimento de requisição + preservação
+      processual"
+
+# ─────────────────────────────────────────────────────────────────────
+# Decisões registradas (ex-lacunas resolvidas em revisão de 2026-04-22)
+# ─────────────────────────────────────────────────────────────────────
+decisoes_registradas:
+  - lacuna: "CP arts. 13, 18, 29, 59 — entram?"
+    decisao: "INCLUIR 13, 18, 29 (diferencial PD claro). EXCLUIR 59
+      (dosimetria — frequente mas sem diferencial PD; entra no L0 por
+      coleta integral, mas não na priorização)."
+    data: 2026-04-22
+
+  - lacuna: "CPP arts. 6, 8 — frequente em peças?"
+    decisao: "INCLUIR art. 6 com desdobramento de incisos II e VII
+      em L0 próprios. EXCLUIR art. 8 (procedimento sem diferencial PD)."
+    data: 2026-04-22
+
+  - lacuna: "CF art. 5 XI (inviolabilidade do domicílio) — incluir?"
+    decisao: "INCLUIR standalone. Era apenas nota em par_busca_apreensao
+      mas ganha autonomia pela jurisprudência de 'domicílio digital'."
+    data: 2026-04-22
+
+  - lacuna: "CF art. 5 II (legalidade) — para tipicidade penal digital?"
+    decisao: "SUBSTITUIR por CF art. 5 XXXIX (legalidade penal específica).
+      O inciso II é genérico demais; XXXIX é o lex specialis."
+    data: 2026-04-22
+
+  - lacuna: "CF art. 144 §1º IV (Polícia Federal) — competência?"
+    decisao: "SUBSTITUIR por §1º I e III. Inciso IV trata de funções
+      de polícia da União em geral, não da competência cibernética
+      específica. Os incisos I (transnacional) e III (uniforme) é que
+      fundamentam a competência da PF em crimes cibernéticos."
+    data: 2026-04-22
+
+  - lacuna: "Leis especiais em raw/ — hot-laws ou só fonte_insercao?"
+    decisao: "AMBOS. Marco Civil, Pacote Anticrime e Lei 14.155/2021
+      ganham seção hot_laws com artigos próprios; permanecem como
+      fonte_insercao nos artigos do CP/CPP que modificaram (rastreabilidade)."
+    data: 2026-04-22
+
+  # Omissões detectadas e decididas na mesma rodada
+  - omissao_detectada: "CPP art. 159 (perícia oficial) ausente da v0.1"
+    decisao: "INCLUIR. Núcleo da disciplina pericial; §3º (assistente
+      técnico) é eixo de paridade de armas em PD."
+    data: 2026-04-22
+
+  - omissao_detectada: "CPP art. 282 (cautelares) ausente da v0.1"
+    decisao: "INCLUIR. Diferencial PD em cautelares atípicas digitais
+      (suspensão de contas, bloqueio de criptoativos)."
+    data: 2026-04-22
+
+  - omissao_detectada: "CP art. 1º (legalidade penal) ausente da v0.1"
+    decisao: "INCLUIR como espelho do CF art. 5 XXXIX."
+    data: 2026-04-22
+
+# ─────────────────────────────────────────────────────────────────────
+# Changelog
+# ─────────────────────────────────────────────────────────────────────
+changelog:
+  - versao: v0.2
+    data: 2026-04-22
+    autor: pedro.mourao (revisão) + claude (proposta)
+    sumario: |
+      14 mudanças aprovadas em revisão das 6 lacunas + 3 omissões detectadas:
+        +CP: 1º, 13, 18, 29 (4 artigos)
+        +CPP: 6 (com desdobramento II/VII), 159, 282 (3 artigos)
+        +CF: 5 XI standalone, 5 XXXIX (substitui ideia de 5 II),
+             144 §1º I e III (substitui ideia de §1º IV) — 4 artigos
+        +hot_laws: Marco Civil (12.965/2014), Anticrime (13.964/2019),
+                   Cibernéticos (14.155/2021) — 3 leis com artigos próprios
+        +pareamentos: 5 novos (legalidade, imputação subjetiva, perícia,
+                      competência PF, Marco Civil guarda)
+
+      Critério adotado: A (estrito, diferencial PD) com escape válvula.
+      Lacunas v0.1 todas resolvidas e movidas para `decisoes_registradas`.
+
+      Estado: aprovado_para_bootstrap. Próximo gate é a primeira ingestão
+      em lote (Fase 5) — depois disso, abrir v0.3 para incorporar
+      aprendizados de retrieval real.
+
+  - versao: v0.1
+    data: 2026-04-22
+    autor: claude (proposta inicial)
+    sumario: |
+      Rascunho inicial: 32 artigos (9 CP, 16 CPP, 7 CF) + 5 pareamentos
+      transversais + 6 lacunas a revisar. Estado: rascunho_pre_bootstrap.
+
+# ─────────────────────────────────────────────────────────────────────
+# Política de uso (a ser detalhada nas Fases 4 e 5)
+# ─────────────────────────────────────────────────────────────────────
+# - Pré-filtro de retrieval: score boost para L0 cujo id está em
+#   cp.artigos[].id_l0_esperado, cpp.artigos[].id_l0_esperado,
+#   cf.artigos[].id_l0_esperado, hot_laws[].artigos_chave[]
+# - Pareamentos: usar para query expansion — query sobre cf-art5-lvi
+#   DEVE também trazer cpp-art157-caput por co-citação esperada
+# - Não substitui o L2 de síntese — informa o L2 sobre quais L0s priorizar
+# - relevancia_pd: critica > alta > media — usar como peso de boost
