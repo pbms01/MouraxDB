@@ -65,6 +65,40 @@ Regra: nome do sidecar = `<id>.source.yaml` (não `<id>.<ext>.source.yaml`).
 Um sidecar descreve um documento lógico, mesmo que ele seja depositado em
 múltiplos formatos simultaneamente (ver §5).
 
+### 3.2 Casos pendentes de julgamento (Tipo B em tramitação)
+
+Quando a fonte é um processo **em tramitação** no STF/STJ (sem acórdão
+publicado, sem trânsito em julgado), o ativo em `raw/` é fundamentalmente
+distinto de um PDF assinado:
+
+- **Fonte**: HTML dinâmico multi-endpoint (portal + abas AJAX), não PDF.
+- **Temporalidade**: o ativo muda ao longo do tempo — cada coleta é um
+  *snapshot datado*, não uma cópia definitiva.
+- **Sem assinatura**: não há ICP-Brasil nem equivalente institucional na
+  origem (é apenas HTML renderizado pelo portal).
+- **Não gera L0**: o conteúdo não entra em `corpus/` até trânsito em
+  julgado — evita chunking de petições/decisões interlocutórias que
+  podem ser superadas pela tese definitiva.
+
+Layout adotado:
+
+```
+raw/B-jurisprudencia/<TRIBUNAL>/<CLASSE-NUMERO>/
+└── <YYYY-MM-DDTHH-MM-SSZ>/            # snapshot datado UTC
+    ├── portal-detalhe.html             # página principal (incidente)
+    ├── aba-partes.html
+    ├── aba-andamentos.html
+    ├── aba-peticoes.html
+    ├── aba-decisoes.html
+    ├── aba-sessao-virtual.html
+    ├── aba-pauta.html
+    └── snapshot.source.yaml            # sidecar do snapshot
+```
+
+A governança do **quê** coletar, **quando** recoletar e **quando** promover
+para L0 vive em `watchlist/` (ver `watchlist/README.md`). Aqui só se
+define o formato do depósito.
+
 ---
 
 ## 4. Schema do sidecar `.source.yaml`
@@ -191,6 +225,75 @@ Justificativa dos campos:
   (ex: Revista Eletrônica STJ), a custódia é ancorada na coleta pelo
   próprio autor em portal autenticado. Não é equivalente a ICP-Brasil,
   mas é um grau de confiança documentado e auditável.
+
+#### 4.4.1 Tipo B em tramitação (snapshot temporal, HTML)
+
+Aplicável quando `tipo: B` e `instrumento: processo_em_tramitacao`. Schema
+de custódia é **temporal** (por snapshot), não criptográfico — a garantia
+vem da coleta datada pelo próprio autor no portal oficial, não de
+assinatura ICP-Brasil (que inexiste na origem HTML).
+
+Campos adicionais obrigatórios:
+
+```yaml
+tribunal: <STF|STJ|TJ-UF|...>
+
+instrumento: processo_em_tramitacao
+
+numero_processo: <número oficial do tribunal + CNJ único, se houver>
+incidente: <número do incidente no portal | null>
+classe_processual: <RE|AgR|HC|ADI|ADPF|...>
+tema_rg: <número do Tema de Repercussão Geral | null>
+ramo: <Criminal|Cível|Tributário|Constitucional|...>
+
+relator: <relator/a conforme portal na data do snapshot>
+orgao_julgador: <turma/plenário | null se ainda não distribuído>
+
+estado_processual:
+  <autuado
+   | em_tramitacao
+   | com_RG_reconhecida
+   | sob_vista
+   | em_sessao_virtual
+   | suspenso
+   | julgado_pendente_publicacao
+   | redistribuicao_pendente>
+
+data_autuacao: <YYYY-MM-DD | null>
+data_ultima_movimentacao: <YYYY-MM-DD | null>
+
+snapshot:
+  datetime_iso: "<YYYY-MM-DDTHH:MM:SSZ>"   # UTC (sufixo Z obrigatório)
+  user_agent: "<User-Agent usado na coleta>"
+  abas_capturadas: <lista de HTMLs efetivamente baixados>
+  anomalias_observadas: >
+    <texto livre — ex: relator divergente de fato conhecido,
+    data fora de padrão, campos ausentes, abas em 404>
+  dinamico: true                        # marcador: ativo pode mudar
+
+assinatura_digital:
+  presente: false
+  formato: sem_assinatura
+  certificados: null
+
+fonte_confiavel: pbm_s                  # coleta direta pelo autor
+```
+
+**Notas operacionais:**
+
+- `datetime_iso` sempre em **UTC** (sufixo `Z`), independente do fuso
+  local. Evita ambiguidade em auditoria cruzada.
+- `anomalias_observadas` preserva o que o portal disse na data do
+  snapshot, mesmo quando o valor é factualmente questionável (ex:
+  relator já aposentado constando como relator ativo). A cadeia de
+  custódia documenta a **coleta**, não a correção do dado de origem.
+- `abas_capturadas` lista apenas os arquivos efetivamente salvos — aba
+  que retornou 404 ou veio vazia vai para `anomalias_observadas`, não
+  para a lista.
+- Nenhum snapshot Tipo B em tramitação gera L0 até promoção formal via
+  `watchlist/` (gate: trânsito em julgado + acórdão publicado com
+  assinatura institucional — então o caso recai no schema §4.4
+  canônico, PDF como fonte).
 
 #### Tipos A, C, D, E, F, G, H
 
@@ -353,7 +456,7 @@ layout) sem ganho informacional.
 
 ---
 
-## 8. Três exemplos anotados
+## 8. Quatro exemplos anotados
 
 ### 8.1 HTML do Planalto (caso canônico de Tipo A)
 
@@ -444,6 +547,75 @@ observacoes: >
   via conversão reversa).
 ```
 
+### 8.4 HTML em snapshot — STF em tramitação (Tipo B em tramitação)
+
+```yaml
+# raw/B-jurisprudencia/STF/RE-1301250/2026-04-23T15-00-00Z/snapshot.source.yaml
+arquivo: portal-detalhe.html
+tipo: B
+url_origem: https://portal.stf.jus.br/processos/detalhe.asp?incidente=6059876
+baixado_em: "2026-04-23T15:00:00Z"
+baixado_por: pedro.mourao
+sha256: <a calcular após coleta do portal-detalhe.html>
+encoding_declarado_http: null
+encoding_real_detectado: "UTF-8"
+conversao_prevista: "sem conversão — snapshot de acompanhamento, não gera L0"
+idioma: ptBR
+licenca: "domínio público (informação processual pública — Lei 9.610/98 art. 8º IV)"
+
+# Extensões §4.4.1 — Tipo B em tramitação
+tribunal: STF
+instrumento: processo_em_tramitacao
+numero_processo: "RE 1.301.250/RJ (0072968-96.2018.8.19.0000)"
+incidente: "6059876"
+classe_processual: RE
+tema_rg: "1148"
+ramo: Criminal
+
+relator: "Min. Rosa Weber"
+orgao_julgador: null
+
+estado_processual: com_RG_reconhecida
+
+data_autuacao: "2021-02-05"
+data_ultima_movimentacao: null
+
+snapshot:
+  datetime_iso: "2026-04-23T15:00:00Z"
+  user_agent: "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0 Safari/537.36"
+  abas_capturadas:
+    - portal-detalhe.html
+    - aba-partes.html
+    - aba-andamentos.html
+    - aba-peticoes.html
+    - aba-decisoes.html
+    - aba-sessao-virtual.html
+    - aba-pauta.html
+  anomalias_observadas: >
+    Portal consta Min. Rosa Weber como relatora apesar da aposentadoria
+    formal em outubro/2023. O snapshot preserva o que o portal disse na
+    data da coleta; redistribuição provável a ser capturada em snapshot
+    posterior. `orgao_julgador` nulo porque ainda não há composição
+    definida para julgamento de mérito.
+  dinamico: true
+
+assinatura_digital:
+  presente: false
+  formato: sem_assinatura
+  certificados: null
+
+fonte_confiavel: pbm_s
+
+observacoes: >
+  Primeiro piloto B-pendente do KB-PD. Tema de Repercussão Geral 1148
+  (Criminal). Snapshot coletado via curl com UA Mozilla/5.0 em
+  2026-04-23T15:00:00Z. Nenhum L0 será gerado enquanto não houver
+  acórdão publicado e trânsito em julgado — registro em
+  watchlist/index.yaml governa recoleta. Abas AJAX baixadas
+  individualmente como HTMLs irmãos; ver watchlist/README.md para
+  política de recoleta e promoção.
+```
+
 ---
 
 ## 9. Checklist de depósito (operação manual)
@@ -467,5 +639,4 @@ Ao depositar um documento novo em `raw/`:
 - Etapa 0.5 (validação) — detalhada em `_AGENTS/AGENTS.md` §ETAPA 0.5
 - Regra de encoding Planalto — `_AGENTS/AGENTS.md` §Encoding de atos normativos
 - Schema canônico do front-matter de `inbox/` — `_AGENTS/schema-reference.md`
-- Critérios de cobertura — `PLANO-INGESTAO.md` §Fase 1 / Critério 1
-
+- Critérios de cobertura — `PLANO-INGESTAO.md` §Fase 1 /
