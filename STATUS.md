@@ -1,6 +1,6 @@
 # STATUS.md — KB-PD (Knowledge Base de Prova Digital)
 
-**Última atualização:** 2026-04-22
+**Última atualização:** 2026-04-23
 **Próxima revisão sugerida:** ao iniciar a próxima sessão, ou ao concluir a Etapa 0.5 propriamente dita
 
 > Painel de bordo do projeto. Lê em 2 minutos, orienta a retomada do trabalho após qualquer pausa. Não substitui `PLANO-INGESTAO.md` (plano completo) nem `_AGENTS/AGENTS.md` (contrato operacional) — consolida o estado atual deles.
@@ -12,7 +12,7 @@
 | Fase | Estado | Bloqueador |
 |---|---|---|
 | 0 — Infra + Git | ✅ concluída | — |
-| 0.5 — Landing zone `raw/` + sidecar | 🟡 estrutura pronta; **validação bloqueante ainda não rodada** sobre os 11 docs já depositados (10 A + 1 B piloto) | precisa rodar mojibake + sha256 match + detecção de artefatos sobre `raw/A-normativas/`; para `raw/B-jurisprudencia/` adicional: schema §4.4 + verificação ICP |
+| 0.5 — Landing zone `raw/` + sidecar | 🟡 estrutura pronta; **validação bloqueante ainda não rodada** sobre os 12 docs já depositados (10 A + 2 B pilotos: HC 315.220 acórdão + RE 1.301.250 snapshot em tramitação); BLOCO F-G concluído em 2026-04-23 — cadeia de custódia HTTP agora lastreada em Git LFS para HTMLs de B-jurisprudencia | precisa rodar mojibake + sha256 match + detecção de artefatos sobre `raw/A-normativas/`; para `raw/B-jurisprudencia/` adicional: schema §4.4/§4.4.1 + verificação ICP |
 | 1 — Bootstrap do vocabulário | ⏳ pendente | bloqueada pelo Critério 1 (cobertura dos 8 tipos) — só A está populado |
 | 2–5 | ⏳ pendentes | dependem da Fase 1 |
 
@@ -37,11 +37,12 @@
 | 9 | Lei 14.155/2021 (furto/fraude eletrônica) | Bolsonaro | retrofited | bug presente |
 | 10 | Lei 14.188/2021 (violência psicológica) | Bolsonaro | retrofited | bug presente |
 
-### B-jurisprudencia (1 documento piloto com sidecar v1.2 + extensão §4.4)
+### B-jurisprudencia (2 documentos piloto com sidecar v1.2 + extensões §4.4/§4.4.1)
 
-| # | Documento | Órgão | Relatora | sha256 | Observações |
+| # | Documento | Órgão | Relator(a) | sha256 | Observações |
 |---|---|---|---|---|---|
-| 1 | HC 315.220/RS — acórdão | STJ 6ª Turma | Maria Thereza de Assis Moura | `e85bd95c…` | Revista Eletrônica STJ; sem ICP; `fonte_confiavel: pbm_s`; via Git LFS; 58 pp |
+| 1 | HC 315.220/RS — acórdão (julgado) | STJ 6ª Turma | Maria Thereza de Assis Moura | `e85bd95c…` | Revista Eletrônica STJ; sem ICP; `fonte_confiavel: pbm_s`; via Git LFS; 58 pp |
+| 2 | RE 1.301.250/RJ (Tema RG 1148) — snapshot de tramitação | STF Pleno | Edson Fachin (rel.) | `4e8b1e9a…` | Caso Google × Marielle; 7 HTMLs (pesquisa + detalhe + andamento + aba sessão + partes + recursos + despachos); coleta 2026-04-23T18-23-06Z; schema §4.4.1; via Git LFS; watchlist ativa até trânsito |
 
 ### C–H (vazios)
 
@@ -131,13 +132,13 @@ Dois caminhos abertos: (A) destravar Etapa 0.5 sobre A-normativas escrevendo `va
 
 | Arquivo | Função | Última atualização |
 |---|---|---|
-| `_AGENTS/AGENTS.md` | Contrato operacional do pipeline; carregado em toda sessão Cowork | 2026-04-22 (v3 bug ordinal + subseção PS 5.1 `git commit -m` splitting) |
-| `_AGENTS/raw-protocol.md` | Schema do sidecar `.source.yaml` + fluxo de 4 etapas; extensões Tipo B em §4.4/§4.5, exemplo canônico §8.2 | 2026-04-22 (v2.1 — commits 66c150f + 6927e9a fix metadados §8.2) |
+| `_AGENTS/AGENTS.md` | Contrato operacional do pipeline; carregado em toda sessão Cowork | 2026-04-23 (+ subseção "Git LFS como camada forense em git 2.53.0.windows.1") |
+| `_AGENTS/raw-protocol.md` | Schema do sidecar `.source.yaml` + fluxo de 4 etapas; extensões Tipo B em §4.4/§4.4.1/§4.5, exemplo canônico §8.2, piloto RE 1.301.250 em §8.4, lições BLOCO F-G em §8.5 | 2026-04-23 (v2.2 — §8.5 LFS para Tipo B em tramitação) |
 | `_AGENTS/schema-reference.md` | Schema canônico completo (L0, L1, L2, L3) | (estável) |
 | `_AGENTS/citacoes-canonicas.md` | Formatos de citação por source_type | (estável) |
 | `_AGENTS/hot-articles.yaml` | Camada de priorização declarativa por domínio | 2026-04-22 (v0.2) |
 | `PLANO-INGESTAO.md` | Plano completo de 5 fases | 2026-04-22 (v1.3 — extensões Tipo B) |
-| `STATUS.md` | **este arquivo** — painel de bordo | 2026-04-22 |
+| `STATUS.md` | **este arquivo** — painel de bordo | 2026-04-23 |
 | `schema/vocabulario.yaml` | Vocabulário controlado | aguardando Fase 1 |
 | `schema/golden_dataset.yaml` | Pares query-resposta para RAGAS | aguardando Fase 3 |
 
@@ -153,6 +154,7 @@ Salvar tempo na próxima sessão evitando armadilhas já mapeadas:
 4. **Encoding Planalto é WINDOWS-1252, não ISO-8859-1** → sempre `iconv -f WINDOWS-1252` na Etapa 1, mesmo quando o meta diz outra coisa. Validado empiricamente em 10 documentos.
 5. **User-Agent matters para o Planalto** — historicamente requeria Mozilla; a coleta de CP/CPP em 2026-04-22 confirmou que User-Agent não-browser também é aceito (atualização registrada nos sidecars). Documentar como flutuação operacional.
 6. **`git commit -m $msg` no PowerShell 5.1 fragmenta mensagens com `-`, `(`, `)`, `->` ou travessão** → parser de comandos nativos interpreta esses caracteres como separadores de argumento; erro típico enganoso `fatal: pathspec '15' did not match...`. Padrão canônico: `git commit -F <tempfile>` com `[System.IO.File]::WriteAllText(..., UTF8Encoding $false)`. Documentado em `_AGENTS/AGENTS.md` §Warnings Git.
+7. **Git 2.53.0.windows.1 mantém `text:set` cosmético em check-attr mesmo com `filter=lfs ... -text`** → `git check-attr text <path>` reporta `text: set` quando deveria reportar `text: unset`, porém `binary: set` coexiste e LFS intercepta o conteúdo ANTES da text conversion. Ordem canônica de filtros: `clean filter (LFS)` → `text conversion (checkin)`. Se o OID LFS local == SHA256 disco, a cadeia forense está íntegra apesar do ruído cosmético. Regra permanente: para Tipo B em tramitação (HTMLs), forçar `filter=lfs diff=lfs merge=lfs -text` no `.gitattributes`; ignorar `text: set` em check-attr; auditar invariante `sha256(disco) == OID(LFS) == OID(origin) == re-hash(smudge clone)`. Documentado em `_AGENTS/raw-protocol.md` §8.5 e `_AGENTS/AGENTS.md` §Git LFS como camada forense.
 
 ---
 

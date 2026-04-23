@@ -28,7 +28,7 @@ sem passar antes por `raw/`.
 | Cobertura | 8 subpastas espelhando o `source_type` (A–H). Sem mistura entre tipos. |
 | Sidecar | Todo arquivo tem um `.source.yaml` irmão obrigatório (ver §4). |
 | Auditabilidade | `ls raw/*/` audita cobertura do Critério 1 da Fase 1 em um comando. |
-| Git LFS | `*.pdf` e `*.epub` vão para LFS via `.gitattributes`. Demais formatos ficam como texto. |
+| Git LFS | `*.pdf` e `*.epub` vão para LFS via `.gitattributes`. HTMLs de Tipo B em tramitação (`raw/B-jurisprudencia/**/*.html`) também vão para LFS — camada forense contra normalização de line endings (ver §8.5). Demais formatos ficam como texto. |
 
 ---
 
@@ -616,6 +616,126 @@ observacoes: >
   política de recoleta e promoção.
 ```
 
+### 8.5 Git LFS como camada forense — lições do BLOCO F-G (RE 1.301.250)
+
+**Contexto (2026-04-23):** durante o depósito do piloto §8.4 (RE 1.301.250, 7 HTMLs coletados do portal STF), emergiu patologia que motivou a migração dos HTMLs de Tipo B em tramitação para Git LFS. Esta seção documenta o diagnóstico (BLOCO F), a decisão de arquitetura (BLOCO G), a descoberta secundária sobre `git check-attr` em `git 2.53.0.windows.1`, e a validação cross-OS.
+
+**Escopo:** exclusivo dos HTMLs sob `raw/B-jurisprudencia/**/*.html`. Não se aplica a `raw/A-normativas/` (HTMLs do Planalto seguem via text stream com encoding WINDOWS-1252 declarado no sidecar — a cadeia de custódia lá é encoding-centric, não LFS-centric).
+
+#### 8.5.1 A patologia — normalização de line endings corrompe cadeia de custódia HTTP
+
+Snapshot HTML de tribunal brasileiro vive numa zona frágil:
+
+1. É **texto** na semântica do protocolo (Content-Type `text/html`, passível de parsing DOM).
+2. Mas a cadeia §4.4.1 declara `sha256(bytes_HTTP_originais)` — invariante byte-a-byte sobre o que o servidor serviu naquele instante.
+
+Quando o repositório armazena o HTML como blob git textual, o ciclo `clean filter → text conversion` do `core.autocrlf` reescreve `\r\n` → `\n` no staging (ou o inverso no checkout em Windows). Resultado: `sha256(conteúdo_pós-clone)` passa a divergir de `sha256(bytes_HTTP_originais)` declarado no sidecar, sem nenhuma operação editorial consciente.
+
+Isso não é cosmético: **invalida silenciosamente a invariante forense**. Um perito que re-hash o HTML clonado para conferir contra o sidecar obtém mismatch e precisa distinguir entre (a) corrupção real, (b) adulteração, (c) artefato de plataforma git. O pipeline KB-PD não pode depender do analista saber esse detalhe.
+
+#### 8.5.2 Tentativas que falharam
+
+Antes de migrar para LFS, três caminhos foram testados:
+
+**T1 — `text:auto`:** deixar o git decidir. Em Windows com `core.autocrlf=true`, `text:auto` é sinônimo de normalização agressiva. Descartada por design.
+
+**T2 — `text:unset` sem LFS:** `.gitattributes` com `raw/B-jurisprudencia/**/*.html  text:unset`. O arquivo é tratado como binário — sem conversão. Funcionou contra normalização, mas: (a) `git check-attr text <path>` em `git 2.53.0.windows.1` continuou reportando `text: set` (cache ou precedência não-documentada); (b) o binário infla o blob store (snapshots HTML somam dezenas de MB); (c) `git diff` mostra binary placeholder — elimina rastreabilidade de deltas entre coletas sucessivas da mesma tramitação.
+
+**T3 — `.gitignore` + hash externo:** descartada por violar princípio arquitetural (cadeia tem de viver sob controle do git, não em sistema paralelo).
+
+#### 8.5.3 Decisão arquitetural — LFS como camada forense
+
+Regra declarada no `.gitattributes`:
+
+```
+raw/B-jurisprudencia/**/*.html  filter=lfs diff=lfs merge=lfs -text
+```
+
+Quatro propriedades críticas:
+
+1. **`filter=lfs`** — o clean filter do LFS calcula SHA-256 do conteúdo bruto no pre-stage. O OID (LFS object id) **é** o SHA-256 dos bytes originais. O hash que o git registra coincide exatamente com o hash que o sidecar §4.4.1 declara. Alinhamento natural de invariantes.
+2. **`diff=lfs` + `merge=lfs`** — impedem que `git diff` e `git merge` tentem operação textual; eliminam ruído de linhas em branco, BOM e diferenças de encoding.
+3. **`-text`** — declara explicitamente que o conteúdo não sofre text conversion (CRLF↔LF). Desliga o estágio problemático.
+4. **Pattern específico** — só HTMLs sob `raw/B-jurisprudencia/`. Não afeta outros HTMLs do repo.
+
+Efeito: o blob no pack passa a ser um pointer de ~130 bytes (`version https://git-lfs.github.com/spec/v1\noid sha256:<64 hex>\nsize <N>\n`); o conteúdo vai para o object store LFS. Clone com `git lfs install && git clone` materializa o HTML original byte-a-byte via smudge filter. Re-hash do arquivo materializado == OID LFS == SHA-256 declarado no sidecar.
+
+#### 8.5.4 Descoberta — `text:set` cosmético em `git 2.53.0.windows.1`
+
+Durante a validação da regra, comportamento inesperado:
+
+```
+$ git check-attr -a raw/B-jurisprudencia/STF/RE-1301250/2026-04-23T18-23-06Z/01-detalhe.html
+...filter: lfs
+...diff: lfs
+...merge: lfs
+...binary: set
+...text: set          ← AQUI
+```
+
+O `text: set` contradiz o `-text` declarado. Em versões anteriores, `filter=lfs ... -text` produzia `text: unset`. Em `git 2.53.0.windows.1` (e possivelmente outras builds da série 2.53), `text` permanece `set` mesmo com `-text` explícito, quando coexiste com `binary:set`.
+
+**Conclusão empírica (validada no BLOCO G.6):** o `text: set` é **cosmético** quando `filter=lfs` está ativo. Ordem canônica dos filtros git:
+
+```
+working-tree --[clean filter (LFS)]--> blob --[text conversion (checkin)]--> pack
+```
+
+O LFS intercepta o conteúdo **antes** do estágio de text conversion. Independentemente do que `check-attr` reporte para `text`, o conteúdo que chega à text conversion já é um pointer de ~130 bytes ASCII puro — imune a CRLF↔LF por construção. O teste que importa é o teste de invariante:
+
+```
+sha256(arquivo_no_disco) == OID(LFS) == (git cat-file -p <blob-pointer> | grep ^oid)
+```
+
+Se essa tripla bate, a cadeia forense está íntegra **independentemente** do que `check-attr text` reporte.
+
+#### 8.5.5 Validação cross-OS (BLOCO G.6)
+
+Reprodutibilidade verificada por travessia fim-a-fim em clone fresh:
+
+```
+1. HTTP response               → baseline: sha256(bytes_HTTP) = $H0
+2. Disco (Windows, pós-LFS)    → sha256(disco_origem) = $H0   [LFS não altera]
+3. LFS local clean             → OID(LFS_local) = $H0
+4. Push para origin            → OID(origin)    = $H0
+5. Clone fresh + lfs install   → smudge materializa bytes
+6. Re-hash pós-clone           → sha256(disco_clone) = $H0    ← VALIDADO
+```
+
+Executado em 2026-04-23 sobre os 7 HTMLs do piloto RE-1301250: **7/7 travessias com `$H0` idêntico nas 6 posições**. Nenhuma divergência. A cadeia de custódia declarada no sidecar é verificável por qualquer analista que clone o repositório, em qualquer SO, sem precisar reconstruir condições de coleta.
+
+#### 8.5.6 Regra permanente + invariante forense
+
+**Regra (vinculante para Tipo B em tramitação):**
+
+Todo HTML depositado em `raw/B-jurisprudencia/**/*.html` passa pela triagem:
+
+```
+[ ] 1. .gitattributes contém: raw/B-jurisprudencia/**/*.html  filter=lfs diff=lfs merge=lfs -text
+[ ] 2. git check-attr filter <path>  → lfs
+[ ] 3. git check-attr diff   <path>  → lfs
+[ ] 4. git check-attr merge  <path>  → lfs
+[ ] 5. git check-attr binary <path>  → set
+[ ] 6. (IGNORAR) git check-attr text <path> — valor irrelevante em git 2.53.0.windows.1
+[ ] 7. git lfs ls-files | grep <path> → entrada com OID = SHA-256 do sidecar
+[ ] 8. Clone fresh + git lfs install + git lfs pull → re-hash bate com sidecar
+```
+
+**Invariante forense (gravada em pedra):**
+
+```
+sha256(coleta_HTTP_original)
+    == sha256(arquivo_no_disco_local)
+    == OID(LFS_local)
+    == OID(LFS_origin)
+    == OID(LFS_pós-clone)
+    == sha256(arquivo_materializado_via_smudge)
+```
+
+Qualquer travessia que quebre essa igualdade é **incidente forense**: aborta operação, registra em `AGENTS.md`, investiga causa antes de prosseguir. A invariante é o único contrato que a parte contrária pode auditar sem confiar em nada além do repositório público + arquivos HTTP públicos + o sidecar declarado.
+
+**Corolário extensivo:** a regra é aplicável a outros tipos futuros cujo formato seja text-like mas com invariante byte-a-byte (XML de lista de autuações, JSON de DataLake Codex do CNJ em cenários forenses). A decisão LFS vs. text é guiada pela pergunta operacional: *"a cadeia de custódia declara hash sobre bytes específicos que o git poderia reescrever sem aviso?"*. Se sim → LFS + `-text`. Se não → text stream normal.
+
 ---
 
 ## 9. Checklist de depósito (operação manual)
@@ -628,7 +748,7 @@ Ao depositar um documento novo em `raw/`:
 [ ] 3. <id>.source.yaml criado com todos os campos obrigatórios
 [ ] 4. encoding detectado (file, chardet ou enca) — conferir com declarado
 [ ] 5. git status mostra binário + sidecar juntos
-[ ] 6. Se PDF/EPUB: confirmar git lfs track funcionando (git check-attr filter)
+[ ] 6. Se PDF/EPUB, ou HTML sob raw/B-jurisprudencia/: confirmar Git LFS (git check-attr filter → lfs; ver §8.5)
 [ ] 7. Commit único: "feat(raw): <id> — <descrição breve>"
 ```
 
