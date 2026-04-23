@@ -8,7 +8,7 @@ Rastreabilidade até fonte primária é requisito de primeira classe — não me
 Vocabulário controlado em schema\vocabulario.yaml — carregar em toda sessão como contexto permanente.
 ## TIPOS DE FONTE (source_type)
 A: normativas brasileiras — chunking por artigo/inciso/alínea, autoridade: vinculante
-B: jurisprudência — 3 L0s obrigatórios por acórdão (ementa + holding + ratio) + 1 opcional (voto divergente), autoridade: vinculante ou persuasivo
+B: jurisprudência — **julgado transitado**: 3 L0s obrigatórios por acórdão (ementa + holding + ratio) + 1 opcional (voto divergente), autoridade: vinculante ou persuasivo. **Em tramitação**: snapshot temporal HTML, sem L0 até trânsito em julgado; governança em watchlist\README.md, schema em _AGENTS\raw-protocol.md §4.4.1
 C: normas técnicas ISO/NIST — chunking por requisito prescritivo (shall/deve), autoridade: persuasivo
 D: resoluções CNJ/CNMP/portarias — chunking por dispositivo, autoridade: vinculante no âmbito
 E: doutrina — atribuição de autor obrigatória no L0, autoridade: persuasivo
@@ -243,6 +243,7 @@ A v3 é mais frágil que v1/v2 no sentido de ser uma predição contínua (taxa 
 Regra do pipeline (inalterada por todas as refutações): o extrator NUNCA "corrige" a forma ordinal — preserva exatamente como veio do HTML. Duplicações de artigo (ex: Marco Civil art. 12 duplicado por MP 1.068/2021 rejeitada), erros de digitação oficiais e qualquer outra "anomalia" do Planalto também são preservados byte a byte na Etapa 1. A política de fidelidade está acima da política de limpeza: qualquer correção é decisão humana editorial a ser feita em etapa posterior, nunca no pipeline automatizado. A hipótese explicativa pode mudar — e mudou três vezes em uma única semana; a regra de preservação, não.
 ## REFERÊNCIAS INTERNAS
 - Protocolo da landing zone raw/ (sidecar .source.yaml + pipeline): _AGENTS\raw-protocol.md
+- Watchlist de casos pendentes de julgamento (governança B em tramitação): watchlist\README.md
 - Schema canônico completo: _AGENTS\schema-reference.md
 - Formatos de citação por tipo: _AGENTS\citacoes-canonicas.md
 - Vocabulário ativo: schema\vocabulario.yaml
