@@ -314,6 +314,58 @@ Predição testável: em futuro `git clone` fresco da máquina, o checkout produ
 
 Registro como lastro: a arquitetura atual funciona em Windows-origem sem precisar do fallback. Não é evidência de que o fallback é desnecessário — é evidência de que a primeira máquina não exercitou a hipótese que o fallback existe para cobrir. Validar em próxima máquina antes de declarar o desenho completo.
 
+**Calibração #3 — `eol=lf + text=auto` suspende fidelidade byte-a-byte em qualquer rebuild; rede tri-modo não recupera bytes originalmente mixed-CRLF (2026-04-23, pós-experimento `lfs-migrate-a-normativas-essay`).**
+
+Esta calibração refuta a Calibração #2. O que lá era "confirmação de predição arquitetural" (rede de segurança tri-modo projetada para cobrir divergência CRLF↔LF em rodadas cross-OS) se revelou artefato do working tree local pré-rebuild, não propriedade do repo. O baseline 10/10 OK em `modo=direto` nunca foi uma propriedade estável — foi um fotograma do estado transitório de bytes que o git ainda não havia reescrito.
+
+**Evidência empírica (2026-04-23, pós-rollback do branch essay).** Sequência de três observações em cadeia:
+
+1. Experimento em branch de trabalho `lfs-migrate-a-normativas-essay`: após `.gitattributes` receber o pattern `raw/A-normativas/**/*.html filter=lfs diff=lfs merge=lfs -text` e `git lfs migrate import --include="raw/A-normativas/*.html" --include-ref=refs/heads/lfs-migrate-a-normativas-essay` reescrever as commits históricas, validador rodou sobre `raw/A-normativas/` e retornou **8/10 BLOCK**. Os únicos OK foram `lei-12737-2012.html` e `lei-13718-2018.html` — precisamente os dois arquivos que `git ls-files --eol` reportava como `w/lf` já no download original (sidecar declarava sha256 de bytes LF-puros).
+2. Rollback executado: `git checkout main && git reset --hard origin/main && git tag -d backup-pre-lfs-a-normativas && git branch -D lfs-migrate-a-normativas-essay`. Repo voltou ao estado pré-experimento, zero operação LFS ativa em `main`.
+3. Validador rodado em `main` pós-rollback **sem nenhuma alteração de `.gitattributes` ou LFS**: reproduziu o mesmo 8/10 BLOCK, com `direto == lf` para cada um dos oito. Os bytes em disco já estavam LF-puros.
+
+O vetor de reescrita foi o próprio `git reset --hard origin/main`. A regra `* text=auto eol=lf` em `.gitattributes` (linha 9) dispara o smudge filter em qualquer operação que reconstrua o working tree a partir dos objetos git. O smudge aplica `eol=lf` e substitui no disco os bytes mixed-CRLF pelos bytes LF-puros correspondentes. Isso acontece em `checkout`, `reset --hard`, `switch`, `restore`, `clone` — qualquer reconstrução do working tree.
+
+**Quantificação da perda.** Comparação de byte-size entre download original (preservado em sidecar via `bytes_declarados`) e arquivo em disco pós-reset:
+
+| arquivo | bytes sidecar | bytes pós-reset | delta | interpretação |
+|---|---|---|---|---|
+| cf-1988-compilada.html | 1 944 732 | 1 922 369 | −22 363 | 22 363 CRLFs colapsados em LF |
+| cp-2848-compilado.html | 562 448 | 555 891 | −6 557 | idem |
+| cpp-3689-compilado.html | 798 611 | 788 933 | −9 678 | idem |
+| lei-12965-2014.html | 45 712 | 45 198 | −514 | idem |
+| lei-13964-2019.html | 187 329 | 185 102 | −2 227 | idem |
+| lei-14132-2021.html | 19 446 | 19 229 | −217 | idem |
+| lei-14155-2021.html | 34 812 | 34 394 | −418 | idem |
+| lei-14188-2021.html | 18 902 | 18 695 | −207 | idem |
+| lei-12737-2012.html | 15 088 | 15 088 | 0 | era `w/lf` no download; imune |
+| lei-13718-2018.html | 19 744 | 19 744 | 0 | era `w/lf` no download; imune |
+
+O delta exato em bytes iguala a contagem de CRLFs que foram normalizados para LF. Cada `\r\n` colapsa em `\n` — um byte perdido por quebra de linha afetada.
+
+**Distinção analítica: regime prospectivo vs regime retroativo.** A comparação com B-jurisprudencia deixa visível por que lá o LFS funcionou e aqui não:
+
+- Regime prospectivo (B-jurisprudencia, fluxo de 2026-04-23): o pattern `raw/B-jurisprudencia/**/*.html filter=lfs diff=lfs merge=lfs -text` entrou no `.gitattributes` antes do primeiro `git add` dos HTMLs STF. O `lfs clean` rodou sobre os bytes HTTP originais, capturando o OID correto. Working tree e objeto git convergem byte-a-byte porque LFS intercepta o conteúdo antes da text conversion.
+- Regime retroativo (A-normativas, tentado em 2026-04-23): o pattern foi adicionado depois que as blobs dos HTMLs já haviam sido gravadas nos objetos git pela Etapa 0.5 inicial (com `* text=auto eol=lf` ativo). `git lfs migrate import` opera sobre blobs no histórico, não sobre bytes no working tree — ele captura a versão que o git já tem, que é a versão LF-normalizada. O bug que se pretendia resolver já havia sido consumado meses antes; o migrate só rebatizou a tubulação.
+
+**Descoberta lateral (a grave).** A falha retroativa do LFS migrate é irrelevante comparada à descoberta operacional que o experimento revelou: o smudge filter reescreve o working tree em qualquer rebuild, com ou sem LFS. A cadeia de custódia byte-a-byte declarada em sidecar v1.2 §4.4.1 para os oito arquivos mixed-CRLF nunca viveu no repositório git — viveu apenas no working tree local do Pedro, imune porque o repo nunca havia reescrito aqueles arquivos depois do `.gitattributes` entrar em vigor. Qualquer clone fresco em Linux, qualquer reset hard em Windows com `core.autocrlf=false`, qualquer checkout que troque branch, produz 8/10 BLOCK imediatamente. O baseline 10/10 OK celebrado em 2026-04-23 (commit 2679d8b) era propriedade transitória da máquina do Pedro, não propriedade do repositório.
+
+**Trade-off aceito (calibração de convicção, não calibração de código).** A rede de segurança tri-modo (`direto` → `normalizado_lf` → `normalizado_crlf`) permanece no validador porque continua sendo útil: ela agora é diagnóstica, não corretiva. Quando `modo=normalizado_lf` faz o hash bater, o validador está informando "os bytes originais tinham este conteúdo em codepoints, mas em CRLF". Isso sustenta o registro histórico — o sidecar continua verdadeiro quanto ao conteúdo editorial, mesmo que o repositório não mantenha mais a representação byte exata. A rede NÃO recupera bytes; ela sinaliza que a representação byte original foi perdida e documenta qual era o conteúdo em nível de codepoints.
+
+**Regra metódica generalizada que emerge.** Fidelidade byte-a-byte em git exige uma de três abordagens, todas necessariamente prospectivas (antes do primeiro `git add` do arquivo):
+
+1. LFS regime ativo desde o commit inaugural — `lfs clean` captura bytes originais e `smudge` não reescreve (apenas materializa o OID).
+2. Atributo `binary` (`-text`) no `.gitattributes` antes do primeiro `git add` — suprime text conversion integralmente.
+3. Pattern-specific `-text` ou `eol=crlf` antes do primeiro `git add` — preserva line endings de origem.
+
+Retroativamente, nenhuma ferramenta de history rewrite (`lfs migrate import`, BFG, `git filter-repo`) recupera os bytes originais. Os bytes foram consumidos pela conversão do text filter antes de virarem objeto git — não existem mais em nenhum lugar do repositório. Recuperação exige nova coleta da fonte original (HTTP re-download), não remediação interna ao repo.
+
+**Corolário para sidecar v1.2 §4.4.1.** A declaração de `sha256` dos bytes HTTP originais continua sendo registro histórico verdadeiro — `data_coleta`, `etag`, `last_modified` são factuais, não dependem do estado do repo. Mas a verificação desse sha256 via validador só recupera o invariante `sha256(disco) == sha256(sidecar)` para arquivos que nasceram LFS, binary ou `-text`. Para o resto, o validador passa a atestar conteúdo (codepoints via fallback tri-modo), não byte-representação. O campo de sidecar `bytes_declarados` ganha peso probatório maior — é o único registro imutável da representação byte original.
+
+**Implicação imediata para o projeto.** Reingest prospectivo dos 10 HTMLs de A-normativas com pattern LFS ativo *antes* do `git add` é operação urgente, não opcional. Cada dia que o repo permanece no estado atual é mais um dia de "cadeia de custódia ilusória" para eventual auditoria externa ou para onboarding de nova máquina. Plano operacional em `PLANO-INGESTAO.md §Reingest-2026-04-23`.
+
+**Protocolo adicional ao sidecar v1.3 (proposta para escopo futuro).** Registrar em cada `.source.yaml` um campo novo `regime_git: lfs | binary | text_unset | text_auto` indicando sob que regime o arquivo foi comitado pela primeira vez. Isso torna o escopo da fidelidade byte-a-byte auditável no próprio sidecar, sem depender de inspeção de `.gitattributes` em momento desconhecido. Arquivos comitados sob `regime_git: text_auto` ganham marca explícita de "sha256 é histórico, não verificável no repo atual".
+
 **Protocolo de registro de calibrações futuras:** cada nova calibração (adição/remoção de padrão, ajuste de threshold, nova rede de segurança) deve ser registrada nesta subseção com (a) data, (b) commit, (c) evidência empírica que motivou a decisão, (d) trade-off aceito, (e) regra metódica geral que emerge (se houver). Esta subseção funciona como cadeia de custódia epistemológica do validador — parte integrante da disciplina de fidelidade do pipeline.
 
 ## REFERÊNCIAS INTERNAS
