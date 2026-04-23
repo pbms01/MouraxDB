@@ -139,6 +139,36 @@ Validado empiricamente na recuperação do commit `6927e9a` em 2026-04-22: após
 
 Aplicável a: todos os scripts .ps1 que invocam `git commit` com mensagem contendo os caracteres problemáticos listados. NUNCA usar `git commit -m $msg` em PS 5.1 quando `$msg` pode conter esses caracteres.
 
+### Git LFS como camada forense em git 2.53.0.windows.1
+**Política aplicada em `raw/B-jurisprudencia/**/*.html` (Tipo B em tramitação).**
+
+Snapshots HTML de tribunais brasileiros declaram `sha256(bytes_HTTP_originais)` no sidecar §4.4.1 — invariante byte-a-byte sobre o que o portal serviu no instante da coleta. Armazená-los como blob git textual expõe a cadeia de custódia à normalização CRLF↔LF do `core.autocrlf`, que corrompe silenciosamente o hash em clone cross-OS. A solução canônica é migrá-los para Git LFS:
+
+```
+# .gitattributes
+raw/B-jurisprudencia/**/*.html  filter=lfs diff=lfs merge=lfs -text
+```
+
+Quatro propriedades críticas: (1) `filter=lfs` — o OID LFS coincide com o SHA-256 dos bytes originais (alinha com a declaração do sidecar §4.4.1); (2) `diff=lfs` + `merge=lfs` — elimina ruído textual em operações git; (3) `-text` — desliga a text conversion CRLF↔LF; (4) pattern específico — não afeta outros HTMLs do repo (A-normativas, documentação, exemplos).
+
+**Descoberta secundária — `text:set` cosmético em git 2.53.0.windows.1:** `git check-attr text <path>` reporta `text: set` mesmo com `-text` declarado no `.gitattributes`, desde que coexista com `binary: set`. Isso é **cosmético** quando `filter=lfs` está ativo. Ordem canônica dos filtros git:
+
+```
+working-tree --[clean filter (LFS)]--> blob --[text conversion (checkin)]--> pack
+```
+
+O LFS intercepta o conteúdo **antes** do estágio de text conversion, e o blob que chega à text conversion já é um pointer de ~130 bytes ASCII puro (imune a CRLF↔LF por construção). Ao auditar a cadeia forense, ignorar o valor de `text` em `check-attr`; o único teste que importa é a invariante:
+
+```
+sha256(disco) == OID(LFS_local) == OID(LFS_origin) == sha256(arquivo_pós-smudge_em_clone_fresh)
+```
+
+Validação empírica em 2026-04-23 no piloto RE 1.301.250 (BLOCO G.6): 7/7 HTMLs com `$H0` idêntico em 6 posições da travessia (coleta HTTP → disco origem → LFS local clean → push → origin → pull/clone fresh + smudge). Nenhuma divergência.
+
+Aplicável a qualquer tipo text-like cujo formato carregue invariante byte-a-byte declarada em sidecar (XML de listas de autuações, JSON de DataLake Codex do CNJ em cenários forenses). Decisão LFS vs. text guiada por: *"a cadeia declara hash sobre bytes específicos que o git poderia reescrever sem aviso?"* — se sim, LFS + `-text`; se não, text stream normal.
+
+Detalhes completos e checklist em `_AGENTS/raw-protocol.md` §8.5.
+
 ### Encoding de atos normativos do Planalto (planalto.gov.br)
 **Política aplicada na Etapa 1 do pipeline** (conversão raw/ → inbox/).
 O portal Planalto serve HTML em Windows-1252 (CP1252), não ISO-8859-1.
