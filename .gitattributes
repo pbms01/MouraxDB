@@ -16,14 +16,31 @@ raw/**/*.pdf   filter=lfs diff=lfs merge=lfs -text
 raw/**/*.epub  filter=lfs diff=lfs merge=lfs -text
 
 # ─── Formatos estruturados em raw/ permanecem texto (diffável, blame) ───
-raw/**/*.html  text eol=lf
-raw/**/*.htm   text eol=lf
+# HTMLs em raw/B-jurisprudencia/ vão para LFS (cadeia de custódia HTTP,
+# ver abaixo). HTMLs em outros source_types herdam `* text=auto eol=lf`
+# da linha 9 — text=auto detecta binário.
 raw/**/*.txt   text eol=lf
 raw/**/*.md    text eol=lf
 raw/**/*.json  text eol=lf
 raw/**/*.xml   text eol=lf
 raw/**/*.yaml  text eol=lf
 raw/**/*.yml   text eol=lf
+
+# ─── Snapshots HTML em raw/B-jurisprudencia/ → Git LFS ───
+# Portais de tribunais (STF/STJ/TJ/PJe) servem HTML via IIS/Tomcat com
+# CRLF nativo. O sidecar v1.2 §4.4.1 ancora cadeia de custódia em
+# sha256 dos bytes em disco — qualquer normalização CRLF→LF invalida o
+# hash em clone cross-OS, quebrando fidelidade forense.
+#
+# LFS desliga a camada de filtros de texto por design (filter=lfs -text),
+# sendo a única abordagem empiricamente estável em git 2.53.0.windows.1
+# após falha de: (a) macro `binary` (coexistiu com text:set em
+# check-attr); (b) `-text -diff -merge` explícito (silenciosamente
+# ignorado); (c) `core.autocrlf=false` local (insuficiente sozinho);
+# (d) pattern literal por snapshot-dir (não neutralizou text=auto
+# global da linha 9). Diagnóstico forense completo em
+# _AGENTS/raw-protocol.md §8.5.
+raw/B-jurisprudencia/**/*.html  filter=lfs diff=lfs merge=lfs -text
 
 # ─── Texto explícito fora de raw/ (LF no objeto Git) ───
 *.md            text eol=lf
