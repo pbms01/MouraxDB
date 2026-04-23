@@ -24,15 +24,27 @@ Todo documento atravessa: raw/ → (Etapa 0.5) → inbox/ → (Etapa 2) → corp
 Fluxo detalhado e exemplos: _AGENTS\raw-protocol.md §7.
 
 ## ETAPA 0.5 — PRÉ-CONDIÇÃO BLOQUEANTE (executa em TODO documento, sem exceção)
-1. Conferência de integridade: sha256 recalculado bate com sidecar .source.yaml (mismatch → aborta).
-2. Verificar encoding: detectar padrões de corrupção UTF-8→Latin-1 (ex: "ÃÃ§Ã£o" em vez de "ação")
-   - Score > 2% de tokens afetados → quarantine\encoding-artifacts\ + encoding_validated: false
-   - Score 0.5–2% → warning + revisão manual recomendada
-   - Score < 0.5% → encoding_validated: true, prossegue
-3. Verificar artefatos de processo: ((VERIFICAR)), [[notas internas]], RASCUNHO, linhas com ??, (TIRAR DA
-   - Qualquer match → quarantine\encoding-artifacts\ com lista de ocorrências
-4. Documento só avança com encoding_validated: true no front-matter YAML.
-5. PROIBIDO limpeza automatizada — risco de remoção de conteúdo legítimo em texto jurídico.
+**Implementação de referência: `scripts/validate_raw_05.py`** (commit 2679d8b, 2026-04-23 — v1 A-normativas).
+Python 3, stdlib-only. 4 checks obrigatórios por documento; qualquer `blocked` aborta a avanço para inbox/.
+
+1. **Schema do sidecar** (`check_sidecar_schema`): valida presença dos 9 campos obrigatórios v1.2 (arquivo, tipo, url_origem, baixado_em, baixado_por, sha256, encoding_real_detectado, conversao_prevista, idioma). Extensões §4.4/§4.4.1/§4.5 são opcionais e não bloqueiam; validador atual v1 ainda não verifica §4.4 (Tipo B) — pendente.
+2. **Conferência de integridade sha256** (`check_sha256`): recalcula em 3 modos com fallback cross-OS:
+   - **modo=direto**: `sha256(bytes do arquivo)` — match esperado quando worktree preserva encoding original (CRLF do Planalto).
+   - **modo=normalizado_lf**: `sha256(bytes com CRLF→LF)` — match esperado após reclone com `.gitattributes eol=lf` ativo.
+   - **modo=normalizado_crlf**: `sha256(bytes com LF→CRLF)` — fallback inverso (worktree Unix após commit a partir de Windows).
+   - Mismatch nos 3 modos → `blocked`.
+3. **Mojibake score** (`check_mojibake`): regex binária detecta padrões UTF-8→Latin-1 sobre bytes brutos:
+   - `\xc3[\x80-\xbf]` (Ã-til + byte), `\xc2[\x80-\xbf]` (Â-circ + byte), `\xe2\x80[\x80-\xbf]` (â€ + byte).
+   - Score > 2% → `blocked` + quarantine\encoding-artifacts\ + encoding_validated: false.
+   - Score 0.5–2% → `warning` + revisão manual recomendada.
+   - Score < 0.5% → encoding_validated: true, prossegue.
+4. **Artefatos de processo** (`check_artifacts`): regex textual sobre UTF-8 decodificado:
+   - Padrões ativos: `((VERIFICAR))`, `[[...]]`, RASCUNHO, TODO, FIXME.
+   - Padrões removidos por calibração empírica: **XXX** (ver §Calibrações empíricas do validador abaixo).
+   - Qualquer match → `blocked` + lista de ocorrências no CSV.
+5. Relatório: `_AGENTS/validation-reports/YYYY-MM-DD-etapa05.csv` (14 colunas; trilha de auditoria versionada).
+6. Documento só avança com `status=ok` ou `status=warning` + revisão humana explícita.
+7. PROIBIDO limpeza automatizada — risco de remoção de conteúdo legítimo em texto jurídico.
 ## REGRAS ABSOLUTAS
 1. NUNCA sobrescrever L0: correções criam nova versão; anterior → superados\ + status: superado + valido_ate preenchido
 2. NUNCA ingerir output da própria KB como Tipo G (loop de contaminação)
@@ -271,6 +283,39 @@ Predições da v3:
 A v3 é mais frágil que v1/v2 no sentido de ser uma predição contínua (taxa esperada) ao invés de binária (bug presente/ausente), o que torna o falseamento mais delicado — uma rodada futura precisa medir a taxa exata e comparar com a faixa prevista, não só "tem bug ou não".
 
 Regra do pipeline (inalterada por todas as refutações): o extrator NUNCA "corrige" a forma ordinal — preserva exatamente como veio do HTML. Duplicações de artigo (ex: Marco Civil art. 12 duplicado por MP 1.068/2021 rejeitada), erros de digitação oficiais e qualquer outra "anomalia" do Planalto também são preservados byte a byte na Etapa 1. A política de fidelidade está acima da política de limpeza: qualquer correção é decisão humana editorial a ser feita em etapa posterior, nunca no pipeline automatizado. A hipótese explicativa pode mudar — e mudou três vezes em uma única semana; a regra de preservação, não.
+
+### Calibrações empíricas do validador (Etapa 0.5)
+**Política aplicada em `scripts/validate_raw_05.py`**. Registro imutável das decisões de calibração feitas a partir de dados da população real — cada calibração nasce de uma rodada do validador sobre `raw/` e responde à pergunta "este padrão distingue artefato de processo de conteúdo legítimo neste corpus?". Se a resposta for não, o padrão sai; se o threshold não for robusto, o threshold muda. Calibrações não são opiniões do analista — são epistemologia aplicada ao detector.
+
+**Calibração #1 — Remoção do padrão `XXX` (2026-04-23, commit 2679d8b).**
+
+Primeira corrida de `validate_raw_05.py` sobre `raw/A-normativas/` em 2026-04-23 bloqueou `cf-1988-compilada.html` com 5 ocorrências de "marca XXX". Inspeção manual das linhas ofensoras:
+
+```
+Art. 5º, inciso XXX - é assegurado o direito de herança
+Art. 7º, inciso XXX - proibição de diferença de salários
+Art. 37, inciso XXX - (revogado)
+(e 2 outras ocorrências em incisos constitucionais)
+```
+
+Todas as 5 ocorrências eram numerais romanos legítimos — nunca marcas editoriais. Em corpus jurídico brasileiro, o contexto de `XXX` é estruturalmente diferente do contexto em código-fonte/documentação técnica anglófona (onde `XXX` é marca pejorativa de código problemático). Aqui, `XXX = 30` no sistema romano, e aparece como inciso em leis longas.
+
+Tentativa intermediária descartada: lookbehind/lookahead `(?<![IVXLCDM])XXX(?![IVXLCDM])` para exigir que XXX NÃO esteja cercado de outros caracteres romanos. Falhou empiricamente — em textos normativos, incisos vêm cercados de vírgulas, hífens, espaços e parênteses, não de outros algarismos romanos. O lookaround estava errado sobre o ambiente morfológico do corpus.
+
+Decisão adotada: remoção integral do padrão `XXX` do detector de artefatos, com comentário inline no código explicitando o motivo (para que futuros editores do validador não o reintroduzam "ingenuamente"). Trade-off aceito: se no futuro algum documento vier com marca editorial "XXX" literal (analista que esqueceu de substituir), o validador não captura — mas esse é um falso-negativo tolerável dado o custo do falso-positivo sistêmico em cada lei/código constitucional que contenha incisos numerados até 30+.
+
+**Regra metódica que emergiu desta calibração:** antes de adicionar qualquer padrão de artefato editorial que pareça "óbvio" (FIXME, TODO, TBD, RASCUNHO, XXX, HACK, NOTE), testá-lo contra a população real de `raw/` ANTES de aceitar o threshold. A semântica do corpus é o filtro definitivo, não a intuição do analista treinado em outro domínio. Padrões importados de code review, QA de software ou revisão editorial anglófona precisam de validação cruzada contra o gênero textual brasileiro-jurídico.
+
+**Calibração #2 — sha256 `modo=direto` em 10/10 na primeira rodada Windows-nativa (2026-04-23, commit 2679d8b, observação empírica).**
+
+Não é remoção de regra, é confirmação de predição arquitetural. A rede de segurança tri-modo (`direto` → `normalizado_lf` → `normalizado_crlf`) foi projetada antecipando divergência CRLF↔LF em rodadas cross-OS. Na primeira rodada, 10/10 sidecars bateram em `modo=direto`, indicando que o worktree Windows-nativo preservou o CRLF original do download Planalto mesmo com `.gitattributes eol=lf` ativo — porque os arquivos nunca foram re-checkoutados após a regra entrar em vigor.
+
+Predição testável: em futuro `git clone` fresco da máquina, o checkout produzirá LF e o sha256 direto divergirá. O fallback `modo=normalizado_lf` entrará em ação e será essa a corrida que valida empiricamente a arquitetura tri-modo. Se 10/10 caírem em `normalizado_lf` após reclone, a rede de segurança está confirmada; se qualquer um cair em `normalizado_crlf` ou falhar nos três, há hipótese não coberta.
+
+Registro como lastro: a arquitetura atual funciona em Windows-origem sem precisar do fallback. Não é evidência de que o fallback é desnecessário — é evidência de que a primeira máquina não exercitou a hipótese que o fallback existe para cobrir. Validar em próxima máquina antes de declarar o desenho completo.
+
+**Protocolo de registro de calibrações futuras:** cada nova calibração (adição/remoção de padrão, ajuste de threshold, nova rede de segurança) deve ser registrada nesta subseção com (a) data, (b) commit, (c) evidência empírica que motivou a decisão, (d) trade-off aceito, (e) regra metódica geral que emerge (se houver). Esta subseção funciona como cadeia de custódia epistemológica do validador — parte integrante da disciplina de fidelidade do pipeline.
+
 ## REFERÊNCIAS INTERNAS
 - Protocolo da landing zone raw/ (sidecar .source.yaml + pipeline): _AGENTS\raw-protocol.md
 - Watchlist de casos pendentes de julgamento (governança B em tramitação): watchlist\README.md
