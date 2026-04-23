@@ -1,0 +1,11 @@
+# KB-PD watchlist -- casos pendentes de julgamento sob observacao
+# Schema completo em watchlist/README.md "Schema de watchlist/index.yaml"
+
+schema_version: "0.1"
+atualizado_em: "2026-04-23"
+
+# Entries sao preenchidas conforme casos entram em observacao.
+# RE 1.301.250/RJ (Tema RG 1148) sera registrado no commit que
+# deposita o primeiro snapshot em raw/B-jurisprudencia/.
+
+entries: []
