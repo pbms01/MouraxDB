@@ -1,0 +1,11 @@
+sidecar_path,tipo,binary_name,overall_status,schema_status,schema_detail,sha256_status,sha256_modo,sha256_detail,mojibake_status,mojibake_score,mojibake_detail,artifacts_status,artifacts_detail
+raw\A-normativas\cf-1988-compilada.source.yaml,A,cf-1988-compilada.html,ok,ok,schema v1.2 ok,ok,direto,match em modo=direto,ok,0.0,"score=0.0000% (0 seqs, 0 bytes, total 1501025) (encoding=WINDOWS-1252)",ok,sem artefatos
+raw\A-normativas\cp-2848-compilado.source.yaml,A,cp-2848-compilado.html,ok,ok,schema v1.2 ok,ok,direto,match em modo=direto,ok,0.0,"score=0.0000% (0 seqs, 0 bytes, total 659965) (encoding=WINDOWS-1252)",ok,sem artefatos
+raw\A-normativas\cpp-3689-compilado.source.yaml,A,cpp-3689-compilado.html,ok,ok,schema v1.2 ok,ok,direto,match em modo=direto,ok,0.0,"score=0.0000% (0 seqs, 0 bytes, total 908086) (encoding=WINDOWS-1252)",ok,sem artefatos
+raw\A-normativas\lei-12737-2012.source.yaml,A,lei-12737-2012.html,ok,ok,schema v1.2 ok,ok,direto,match em modo=direto,ok,0.0,"score=0.0000% (0 seqs, 0 bytes, total 11916) (encoding=WINDOWS-1252)",ok,sem artefatos
+raw\A-normativas\lei-12965-2014.source.yaml,A,lei-12965-2014.html,ok,ok,schema v1.2 ok,ok,direto,match em modo=direto,ok,0.0,"score=0.0000% (0 seqs, 0 bytes, total 119976) (encoding=WINDOWS-1252)",ok,sem artefatos
+raw\A-normativas\lei-13718-2018.source.yaml,A,lei-13718-2018.html,ok,ok,schema v1.2 ok,ok,direto,match em modo=direto,ok,0.0,"score=0.0000% (0 seqs, 0 bytes, total 21142) (encoding=WINDOWS-1252)",ok,sem artefatos
+raw\A-normativas\lei-13964-2019.source.yaml,A,lei-13964-2019.html,ok,ok,schema v1.2 ok,ok,direto,match em modo=direto,ok,0.0,"score=0.0000% (0 seqs, 0 bytes, total 219503) (encoding=WINDOWS-1252)",ok,sem artefatos
+raw\A-normativas\lei-14132-2021.source.yaml,A,lei-14132-2021.html,ok,ok,schema v1.2 ok,ok,direto,match em modo=direto,ok,0.0,"score=0.0000% (0 seqs, 0 bytes, total 14333) (encoding=WINDOWS-1252)",ok,sem artefatos
+raw\A-normativas\lei-14155-2021.source.yaml,A,lei-14155-2021.html,ok,ok,schema v1.2 ok,ok,direto,match em modo=direto,ok,0.0,"score=0.0000% (0 seqs, 0 bytes, total 20916) (encoding=WINDOWS-1252)",ok,sem artefatos
+raw\A-normativas\lei-14188-2021.source.yaml,A,lei-14188-2021.html,ok,ok,schema v1.2 ok,ok,direto,match em modo=direto,ok,0.0,"score=0.0000% (0 seqs, 0 bytes, total 18263) (encoding=WINDOWS-1252)",ok,sem artefatos
