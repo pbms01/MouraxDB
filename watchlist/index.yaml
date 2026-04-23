@@ -5,7 +5,41 @@ schema_version: "0.1"
 atualizado_em: "2026-04-23"
 
 # Entries sao preenchidas conforme casos entram em observacao.
-# RE 1.301.250/RJ (Tema RG 1148) sera registrado no commit que
-# deposita o primeiro snapshot em raw/B-jurisprudencia/.
+# Primeiro piloto B-pendente: RE 1.301.250/RJ (Tema RG 1148), registrado
+# simultaneamente ao deposito do primeiro snapshot em raw/B-jurisprudencia/.
 
-entries: []
+entries:
+  - id: STF-RE-1301250
+    tribunal: STF
+    numero_processo: "RE 1.301.250/RJ (0072968-96.2018.8.19.0000)"
+    incidente: "6059876"
+    ramo: Criminal
+    tema_rg: "1148"
+    assunto: >
+      Limites constitucionais da decretacao judicial de quebra de sigilo
+      de dados telematicos sobre pessoas indeterminadas (busca reversa
+      por palavra-chave em provedores de aplicacao -- art. 22 da Lei
+      12.965/2014, Marco Civil da Internet). Leading case Google x
+      Marielle Franco.
+    primeiro_snapshot: "2026-04-23T18:23:06Z"
+    ultimo_snapshot: "2026-04-23T18:23:06Z"
+    estado_processual: em_tramitacao
+    status: observando
+    revisar_em: "2026-04-28"
+    acordao_em: null
+    observacoes: >
+      Pauta de 22/04/2026 sem certidao de sessao registrada no portal
+      ate o snapshot de 23/04 -- indeterminado se o julgamento ocorreu
+      (aguardando publicacao 24-48h) ou foi adiado. Recoleta curta
+      programada para 2026-04-28 resolvera a ambiguidade. Placar
+      parcial extraido dos andamentos: 2 votos pelo provimento (Rosa
+      Weber/relatora e Andre Mendonca) x 5 pela divergencia (Alexandre
+      de Moraes, Cristiano Zanin, Gilmar Mendes, Nunes Marques e Edson
+      Fachin); Toffoli devolveu vista em 10/02/2026 mas voto ainda nao
+      publicado; Fux e Carmen Lucia nao votaram; Barroso impedido
+      desde a analise de RG (2021). Anomalia do portal: Min. Rosa
+      Weber consta como relatora apesar de aposentadoria em 10/2023 --
+      preservada no snapshot conforme fidelidade a artefato (ver
+      _AGENTS/raw-protocol.md secao 4.4.1 e watchlist/README.md
+      "Politica de fidelidade"). Sucessor formal Flavio Dino aparece
+      como "nao votou" nas certidoes de 16/10/2024 e 23/04/2025.

@@ -1,0 +1,106 @@
+# raw/B-jurisprudencia/STF/RE-1301250/2026-04-23T18-23-06Z/snapshot.source.yaml
+# Primeiro piloto B-pendente do KB-PD (Tipo B em tramitação, schema v1.2 §4.4.1)
+
+# === Campos OBRIGATÓRIOS (§4) ===
+arquivo: 01-detalhe.html
+tipo: B
+url_origem: https://portal.stf.jus.br/processos/detalhe.asp?incidente=6059876
+baixado_em: "2026-04-23T18:23:06Z"
+baixado_por: pedro.mourao
+sha256: 4e8b1e9a99e9c75e4f0115abfcb1b906903338bb86967e68e9ef3eead9ebf70a
+encoding_declarado_http: "text/html"
+encoding_real_detectado: "UTF-8"
+conversao_prevista: "sem conversão — snapshot de acompanhamento, não gera L0"
+
+# === Campos opcionais gerais ===
+idioma: ptBR
+licenca: "domínio público (informação processual pública — Lei 9.610/98 art. 8º IV)"
+
+# === Extensões §4.4.1 — Tipo B em tramitação ===
+tribunal: STF
+instrumento: processo_em_tramitacao
+
+numero_processo: "RE 1.301.250/RJ (0072968-96.2018.8.19.0000)"
+incidente: "6059876"
+classe_processual: RE
+tema_rg: "1148"
+ramo: Criminal
+
+relator: "Min. Rosa Weber"
+orgao_julgador: "Tribunal Pleno"
+
+estado_processual: em_tramitacao
+
+data_autuacao: "2020-11-26"
+data_ultima_movimentacao: "2026-04-16"
+
+snapshot:
+  datetime_iso: "2026-04-23T18:23:06Z"
+  user_agent: "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/125.0.0.0 Safari/537.36"
+  abas_capturadas:
+    - 01-detalhe.html
+    - 02-abaInformacoes.html
+    - 03-abaAndamentos.html
+    - 04-abaDecisoes.html
+    - 05-abaPartes.html
+    - 06-abaSessao.html
+    - 07-tema-1148.html
+  anomalias_observadas: >
+    (1) Portal registra "MIN. ROSA WEBER" como relatora apesar de aposentadoria
+    formal em 10/2023 — campo preservado no snapshot conforme política de
+    fidelidade. Relatoria funcional efetiva passou implicitamente a Min. Dias
+    Toffoli, último a pedir vista (25/09/2025) e a devolver os autos
+    (10/02/2026). Flávio Dino, sucessor formal de Rosa Weber, consta
+    expressamente como "não votou" (certidões de 16/10/2024 e 23/04/2025).
+    (2) Último andamento registrado é de 16/04/2026 com "Data de Julgamento:
+    22/04/2026". Snapshot capturado em 23/04/2026 (dia seguinte à pauta) sem
+    registro de certidão de sessão de 22/04 — indeterminado se o julgamento
+    ocorreu (aguarda publicação 24-48h) ou foi adiado. Recoleta curta
+    programada em watchlist para resolução.
+    (3) Placar parcial extraído dos andamentos: 2 votos pelo provimento
+    (Rosa Weber/relatora e André Mendonça) × 5 pela divergência (Alexandre
+    de Moraes, Cristiano Zanin, Gilmar Mendes, Nunes Marques e Edson Fachin
+    acompanhando a divergência). Voto-vista de Toffoli pendente; Fux e
+    Cármen Lúcia ainda não votaram. Barroso impedido desde a análise de RG
+    (2021). Tese proposta pela divergência (Alexandre de Moraes, com
+    aditamentos de Gilmar Mendes em 24/09/2025) em negociação.
+    (4) ETag e Last-Modified ausentes em 7/7 abas (servidor IIS do portal
+    STF não os emite para respostas .asp dinâmicas) — custódia ancorada em
+    sha256 + data_coleta + UA.
+    (5) UA institucional "KB-PD/0.5" retornou 403 (WAF do portal STF);
+    adotado UA Mozilla-like real do ambiente de coleta (Chrome 125 no Win10
+    x64). Registrado aqui para transparência da cadeia.
+  dinamico: true
+
+assinatura_digital:
+  presente: false
+  formato: sem_assinatura
+  certificados: null
+
+fonte_confiavel: pbm_s
+
+# === Campos opcionais contextuais ===
+observacoes: >
+  Primeiro piloto B-pendente do KB-PD (ver watchlist/README.md). Tema de
+  Repercussão Geral 1148 — "Limites para decretação judicial da quebra de
+  sigilo de dados telemáticos, no âmbito de procedimentos penais, em
+  relação a pessoas indeterminadas." Assuntos: DIREITO PROCESSUAL PENAL |
+  Ação Penal | Nulidade | Ausência de Fundamentação; DIREITO PROCESSUAL
+  PENAL | Investigação Penal. Leading case de elevada relevância para o
+  KB-PD por tratar da constitucionalidade de busca reversa por
+  palavra-chave em provedores de aplicação (art. 22 Lei 12.965/2014 —
+  Marco Civil da Internet), com interveniência de Monica Tereza Azeredo
+  Benicio, viúva de Marielle Franco (INTDO). Recorrentes: Google Brasil
+  Internet Ltda. e Google Inc.; recorridos: Estado do RJ, MPRJ e MPF.
+  Amici curiae: Educafro, IBCCrim, ITS Rio, Facebook e MP-MG (INTDO).
+  Origem: RMS 60698/STJ e Mandado de Segurança 0072968-96.2018.8.19.0000
+  (TJRJ). Coleta byte-a-byte de 7 abas AJAX do portal realizada em
+  2026-04-23T18:23:06Z via Invoke-WebRequest (PS 5.1 em Win10) com warm-up
+  de sessão (cookies AWSALB + ASPSESSIONIDCWRRDDCS). Manifest completo com
+  sha256 + http_status + Content-Type das 7 respostas preservado em
+  outputs/_scratch/manifest-RE1301250-2026-04-23T18-23-06Z.json durante a
+  bootstrap da Etapa 0.5; auditoria cruzada possível comparando hash
+  registrado aqui (01-detalhe.html) com manifest. Nenhum L0 será gerado
+  enquanto não houver acórdão publicado e trânsito em julgado — a entry
+  correspondente em watchlist/index.yaml governa a recoleta e o eventual
+  gate de promoção para corpus/ canônico (schema §4.4).
