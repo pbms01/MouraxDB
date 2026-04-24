@@ -39,7 +39,7 @@
 | Fase | Descrição | Status |
 |------|-----------|--------|
 | 0 | Infraestrutura e repositório Git | ✅ Concluído |
-| 0.5 | Landing zone raw/ + sidecar .source.yaml + LFS | 🟡 Em andamento — estrutura criada em 2026-04-22; **A-normativas = 10 documentos com sidecar v1.2 completo** (CF/1988, CP/1940, CPP/1941 + leis 12.737/2012, 12.965/2014, 13.718/2018, 13.964/2019, 14.132/2021, 14.155/2021, 14.188/2021 — as 3 legadas retrofited; faltam B, C, D, E, F, G, H) |
+| 0.5 | Landing zone raw/ + sidecar .source.yaml + LFS | ✅ Concluída para A-normativas (FASE 2 reingest prospectivo LFS, commit 3081647, 2026-04-24) — **10 HTMLs sob `filter=lfs diff=lfs merge=lfs -text`**, sidecares v1.2 atualizados com `sha256` novo + `etag_http` + `last_modified_http` + `baixado_em` + `baixado_por` + bloco `reingest_2026_04_24` (fundamento: CPP 158-A, LC 75/93 art. 8º II, Lei 8.625/93 art. 26 I b, CNJ Res. 615/2025, Lei 9.610/98 art. 8º IV); `validate_raw_05.py` 10/10 OK em modo=direto, mojibake 0.0000%, zero artefatos. 🟡 Em andamento para B-jurisprudencia (2 pilotos, extensão §4.4/§4.4.1 pendente); C, D, E, F, G, H ainda vazios |
 | 1 | Bootstrap do vocabulário | ⏳ Pendente — bloqueado pelo Critério 1 (cobertura dos 8 tipos em raw/) |
 | 2 | Prompts de extração por tipo | ⏳ Pendente |
 | 3 | Golden dataset inicial | ⏳ Pendente |
@@ -87,10 +87,17 @@ ingestão futura depende dela. O que é verificável é a estrutura:
       sobre L0, 43 artigos hot + 3 hot_laws + 10 pareamentos transversais
 - [x] _AGENTS/raw-protocol.md v2 (commit 66c150f) — §4.4 extensões Tipo B,
       §4.5 rastreabilidade dupla MD, §8.2 exemplo HC 315.220
-- [ ] git lfs install executado no Windows (Pedro — uma vez por máquina)
-- [ ] Etapa 0.5 propriamente dita (validação bloqueante de mojibake score,
-      sha256 match e ausência de artefatos) ainda não executada sobre os
-      10 documentos em raw/A-normativas/ — destrava a Fase 1
+- [x] git lfs install executado no Windows (pré-requisito satisfeito; rastro em `.git/lfs/`)
+- [x] Etapa 0.5 executada sobre os 10 documentos em raw/A-normativas/ pós-FASE 2 reingest
+      (2026-04-24, commit 3081647) — resultado: `ok=10 warning=0 blocked=0`, 10/10 em
+      modo=direto (invariante `sha256(disco) == OID(LFS) == sidecar` íntegra),
+      mojibake 0.0000% em todos, zero artefatos. CSV de auditoria em
+      `_AGENTS/validation-reports/2026-04-24-etapa05.csv`. Anomalia material
+      isolada em `lei-14188-2021.html` (delta_bytes -1.559 = -8,53% vs. coleta
+      anterior) — documentada no bloco `reingest_2026_04_24.anomalia_recompilacao`
+      do sidecar e sinalizada para investigação em Etapa 1 (diff semântico sobre
+      markdown canônico). **A-normativas destrava Fase 1 parcial**; para Fase 1
+      completa ainda dependem B–H.
 
 ---
 
@@ -551,6 +558,243 @@ Sem esse tipo, o L2 de síntese vai classificar incorretamente como
 
 ---
 
+## Reingest-2026-04-23 — Fase 1: cadeia de custódia por agente MP (decisão 2026-04-24)
+
+### Contexto
+
+Durante a Fase 1 Reingest, após aplicação da Calibração #3 (regime LFS
+prospectivo para `raw/A-normativas/**/*.html`), o diagnóstico byte-a-byte
+dos 10 HTMLs de `raw/A-normativas/` revelou divergência sistemática entre
+os backups preservados sob tag `backup-pre-reingest-a-normativas-2026-04-23`
+e os downloads frescos realizados em 2026-04-23/24. Investigação controlada
+(duplo-download com 3s de intervalo, ETag e Last-Modified idênticos entre
+as duas chamadas) isolou a causa:
+
+O portal Planalto opera atrás de **F5 Advanced WAF com Client-Side Protection
+Module (CSPM)** ativo. O F5 injeta, a cada resposta HTTP, dois elementos
+dinâmicos no corpo HTML servido:
+
+1. Cookie `f5avr<UNIX_TIMESTAMP>aaaaaaaaaaaaaaaa_cspm_=<NONCE_128B>` — onde
+   o timestamp rotaciona por request e o nonce é reaciado por request.
+2. Bloco `<script>…f5_cspm.go()…</script>` — cuja presença ou ausência
+   depende da política F5 no instante, do fingerprint do cliente e de
+   heurísticas anti-bot não públicas.
+
+Evidência concreta em `outputs/_scratch/diagnostico-diffs/lei-13718-2018.diff.txt`:
+duas coletas do mesmo URL, mesmo ETag `"4c7f-65029139dcf47"`, mesmo
+Last-Modified, produziram SHA-256 distintos
+(`d6059357841f…` vs `2251e7bd65c4…`), com delta isolado em dois intervalos:
+offset 19.635–19.762 (128 B de nonce) e offset 20.622–20.629 (8 B de
+timestamp). O caso lei-14188-2021 é gradiente do mesmo fenômeno: backup
+contém o bloco CSPM completo (1.233 B); fresh não contém. Não há alteração
+editorial do texto normativo nos 10 arquivos.
+
+### Decisão
+
+A cadeia de custódia dos artefatos em `raw/A-normativas/` **passa a
+ancorar-se formalmente no ato de coleta documentado por agente público do
+Ministério Público**, e não em reprodutibilidade byte-a-byte perpétua com
+o servidor de origem.
+
+Consequentemente:
+
+- `sha256` declarado em cada `.source.yaml` é a identidade do **snapshot
+  coletado pelo agente na data registrada** — é verdadeiro sobre o artefato
+  capturado e sobre o ato de captura, independentemente de o Planalto, em
+  coleta futura, servir bytes idênticos.
+- Re-coletas posteriores que resultem em hash divergente **não quebram**
+  a cadeia: produzem nova entrada de coleta, com novo sidecar e nova data,
+  convivendo com o anterior se houver razão documental para mantê-lo.
+- Os campos `baixado_em` (ISO-8601 UTC) e `baixado_por` (identificação do
+  agente) deixam de ser metadados decorativos e passam a ser **elementos
+  normativos centrais** do sidecar v1.2.
+
+### Fundamento normativo
+
+- **CPP art. 158-A a 158-F** (Lei 13.964/2019, Pacote Anticrime) — positivou
+  a cadeia de custódia como sequência de atos que começa na coleta
+  (art. 158-A §1º). A integridade pré-coleta é atestada pelo coletor;
+  a integridade pós-coleta é assegurada por documentação e acondicionamento.
+  Não há exigência legal de reprodutibilidade contrafactual da fonte.
+- **LC 75/93 art. 8º, II** — atribuição institucional do Ministério Público
+  para requisitar informações, exames, perícias e documentos de autoridades
+  da administração pública direta ou indireta.
+- **Lei 8.625/93 (LONMP) art. 26, I, b** — idêntica atribuição no âmbito
+  estadual, reforçando a fé pública funcional do membro do MP nos atos
+  de produção e documentação probatória.
+- **CNJ Res. 615/2025** — exige rastreabilidade da fonte nos sistemas
+  de IA do Judiciário; a rastreabilidade é satisfeita por documentação
+  da coleta, não por reprodutibilidade perpétua do servidor remoto.
+- **Lei 9.610/98 art. 8º, IV** — textos de lei são domínio público.
+  A fonte oficial (Planalto) hospeda o texto sem exercer controle
+  editorial sobre terceiros; o que lá se publica é, por si, res nullius
+  normativa.
+
+### Consequências arquiteturais
+
+Efeitos práticos no pipeline KB-PD:
+
+1. **Suprimida** a proposta de camada intermediária `raw-canonical/` com
+   stripping F5 e campo `sha256_canonical` no sidecar. Complexidade
+   injustificada — resolvia problema que a moldura jurídica correta já
+   dissolve.
+2. **Suprimida** a tentativa de negociação de User-Agent para evitar o
+   CSPM. O F5 é propriedade observada da fonte, não defeito a contornar.
+3. **Mantida e fortalecida** a imutabilidade de `raw/`: após a coleta,
+   nenhum byte é alterado; re-coletas geram novos arquivos, nunca sobrescrevem.
+4. **Mantida** a disciplina de fidelidade byte-a-byte **do snapshot** —
+   o que o agente capturou permanece inalterado em disco, sob LFS quando
+   HTML em `raw/A-normativas/` (Calibração #3).
+5. **Mantidos** os campos v1.2 do sidecar; elevado o peso documental de
+   `baixado_em` e `baixado_por`.
+
+### Disciplina operacional
+
+Todo novo documento em `raw/` deve ter sidecar `.source.yaml` v1.2 com,
+no mínimo:
+
+- `arquivo`, `tipo` (A–H), `url_origem`
+- `sha256` do arquivo exatamente como escrito em disco
+- `encoding_real_detectado` (ex.: WINDOWS-1252 para Planalto)
+- `baixado_em` (ISO-8601 UTC, precisão de segundo)
+- `baixado_por` (identificação do agente MP + método de coleta)
+- `etag_http` e `last_modified_http` (quando retornados pelo servidor)
+- `licenca`
+- `observacoes` (particularidades observadas na coleta, inclusive
+  presença/ausência de injeção F5 CSPM quando relevante)
+
+### Refutação parcial da hipótese v3 (bug ordinal Planalto)
+
+A hipótese v3 postula `taxa_bug ≈ f(idade do documento × alterações
+acumuladas)`, estratificada por bloco editorial. A evidência F5 WAF
+implica que comparações byte-a-byte entre coletas em datas diferentes
+misturam dois sinais:
+
+- **Sinal A**: alteração editorial do Planalto (o que a hipótese quer medir).
+- **Sinal B**: rotação de nonce/token F5 (ruído de rede, não editorial).
+
+Qualquer teste futuro da hipótese v3 deve operar sobre **conteúdo
+normativo extraído** (markdown canônico de `inbox/`, ou diff semântico
+do texto normativo) — não sobre HTML bruto de `raw/`. Registrar em
+`AGENTS.md` como refinamento metodológico, não como refutação total.
+
+### Referências internas
+
+- `outputs/_scratch/2026-04-23-reingest-triagem.csv` — triagem inicial
+- `outputs/_scratch/2026-04-23-classificacao-cenarios.csv` — classificação
+  pós-backup
+- `outputs/_scratch/diagnostico-diffs/lei-13718-2018.diff.txt` — diff
+  byte-a-byte probatório do F5 CSPM
+- `outputs/_scratch/diagnostico-diffs/lei-14188-2021.compare.txt` —
+  caso de injeção assimétrica
+- Tag git: `backup-pre-reingest-a-normativas-2026-04-23`
+
+---
+
+## Reingest-2026-04-23 — Fase 2: commit prospectivo LFS (2026-04-24)
+
+### Objetivo
+
+Fechar operacionalmente a reingest iniciada na Fase 1 (decisão arquitetural),
+materializando no repositório git o regime LFS prospectivo para
+`raw/A-normativas/**/*.html`. Regime retroativo foi refutado na Calibração
+#3 (2026-04-23, seção de calibrações em `_AGENTS/AGENTS.md`): nenhuma
+ferramenta de history rewrite (`lfs migrate import`, BFG, `git filter-repo`)
+recupera bytes consumidos pelo `text=auto eol=lf` — a remediação exige
+nova coleta da fonte e `git add` inaugural já sob filter=lfs.
+
+### Operação executada (2026-04-24, commit 3081647)
+
+Sequência em duas fases consecutivas:
+
+**Pré-fase — remoção do blob textual (commit 68353a7):**
+`chore(raw): remover raw/A-normativas/*.html para reingest LFS prospectivo`
+apaga os 10 HTMLs do tracking git para limpar o estado e permitir que o
+re-add subsequente passe por `lfs clean` desde o primeiro byte.
+
+**FASE 2 (commit 3081647):**
+`feat(raw/A): FASE 2 reingest — 10 HTMLs Planalto sob LFS prospectivo
+(cadeia de custódia por agente MP)`
+
+- 10 HTMLs frescos coletados em 2026-04-24 via `Invoke-WebRequest`
+  (PowerShell 5.1 nativo, com snapshot byte-a-byte via
+  `$r.RawContentStream.ToArray()`).
+- `.gitattributes` atualizado: `raw/**/*.html filter=lfs diff=lfs
+  merge=lfs -text` (Calibração #3 aplicada).
+- 10 sidecares `.source.yaml` v1.2 atualizados por agente MP, com:
+  - `sha256` novo (dos bytes frescos em disco)
+  - `etag_http` + `last_modified_http` (quando capturados pelo servidor;
+    caso contrário, sentinela `"nao-capturado-2026-04-24"`)
+  - `baixado_em` (ISO-8601 UTC, precisão de segundo)
+  - `baixado_por: pbm_s` (agente MP)
+  - bloco novo `reingest_2026_04_24:` com `sha256_anterior` /
+    `sha256_atual` / `delta_bytes` / `interpretacao_delta` /
+    `fundamento_cadeia_custodia` (referência multi-normativa).
+- Invariante `sha256(disco) == OID(LFS)` validada nos 10 via
+  `git lfs ls-files --long` + `sha256sum` cross-check.
+
+### Validação pós-commit (2026-04-24)
+
+`python scripts\validate_raw_05.py` (implementação de referência, commit
+2679d8b) rodou sobre `raw/A-normativas/` pós-3081647 e emitiu
+`_AGENTS/validation-reports/2026-04-24-etapa05.csv` com:
+
+- `overall_status = ok` em 10/10 arquivos
+- `sha256_status = ok | sha256_modo = direto` em 10/10 (invariante
+  `sha256(disco) == sidecar` íntegra via LFS smudge)
+- `mojibake_score = 0.0000%` em 10/10
+- `artifacts_status = ok` em 10/10 (zero ocorrências de padrões
+  `((VERIFICAR))`, `[[notas]]`, RASCUNHO, TODO, FIXME)
+
+### Anomalia material — lei-14188-2021.html
+
+9 dos 10 arquivos tiveram `delta_bytes == 0` em relação à coleta anterior,
+confirmando empiricamente que o F5 Advanced WAF/CSPM injeta apenas
+nonce+token sem alterar o conteúdo editorial. A exceção:
+
+| Arquivo | bytes 2026-04-23 | bytes 2026-04-24 | delta | interpretação |
+|---|---|---|---|---|
+| lei-14188-2021.html | 18.263 | 16.704 | −1.559 (-8,53%) | **recompilação editorial do Planalto** |
+
+Delta desta ordem não é compatível com rotação F5 (injeção nonce+token
+= ~128–1.233 B, e sempre adição, não remoção). Hipótese operacional:
+recompilação editorial entre coletas — provavelmente normalização do
+template AJ, talvez removendo bloco CSPM que estava presente na versão
+antiga (lei-14188-2021 foi o caso de injeção assimétrica no diagnóstico
+original). Registrado no sidecar em `reingest_2026_04_24.anomalia_recompilacao`
+com flag `investigar_em_etapa_1: true`.
+
+**Plano de investigação (Etapa 1, quando acionada):**
+Após conversão HTML→MD de ambas as versões via `iconv -f WINDOWS-1252`,
+executar `diff` semântico sobre o markdown canônico. Se o diff produzir
+delta textual zero (apenas remoção de template/script CSPM), o caso
+consolida o modelo F5-induzido como causa dominante. Se produzir delta
+textual real, é primeiro data point de alteração material sem publicação
+de ato normativo alterador — exige checagem no DOU.
+
+### Consequências para o pipeline
+
+1. Regime LFS prospectivo valida integralmente a recomendação da Calibração
+   #3 (`_AGENTS/AGENTS.md`): para qualquer novo source_type com invariante
+   byte-a-byte declarada em sidecar, configurar `filter=lfs ... -text` no
+   `.gitattributes` ANTES do primeiro `git add`. Nunca retroativamente.
+2. O item 9 do cookbook (`STATUS.md §7`) passa de "cadeia de custódia
+   byte-a-byte nunca viveu no repo" para "cadeia de custódia ancorada no
+   ato de coleta do agente MP, verificável via invariante LFS". Redação
+   atualizada na inflexão epistêmica de 2026-04-24.
+3. Schema v1.2 demonstrou empiricamente tolerância a heterogeneidade:
+   sidecares ricos (lei-14132-2021 com `http_response.*` nested) e
+   simplificados (outros 9 com `etag_http`/`last_modified_http` na raiz)
+   convivem, e o validador aceita ambos sem carve-out específico —
+   formalização como v1.2-a é documental, não técnica.
+4. Sentinela `"nao-capturado-YYYY-MM-DD"` passou por teste de campo
+   pela primeira vez: validador aceita como string opcional, sem bloqueio.
+   Trade-off registrado: a aceitação silenciosa poupa a operação de
+   degradar graciosamente, mas impede validação estrutural de
+   timestamps HTTP. Aceito em troca de robustez operacional.
+
+---
+
 ## Notas operacionais do ambiente
 
 ### Limitações do sandbox Cowork (Windows bridge)
@@ -589,8 +833,16 @@ simples no delimitador. Verificar tamanho com `wc -c` após escrita.
 | pendente | docs: AGENTS.md §155-170 — promove hipótese v3 (estratificação por bloco editorial) | 2026-04-22 |
 | pendente | docs: PLANO-INGESTAO.md — Fase 0.5 com 10 documentos em A-normativas | 2026-04-22 |
 | pendente | docs: STATUS.md — painel de bordo do projeto (consolidação) | 2026-04-22 |
+| 2679d8b | feat(scripts): validate_raw_05.py v1 (Etapa 0.5 bloqueante — schema + sha256 tri-modo + mojibake + artefatos) | 2026-04-23 |
+| 66c150f | docs(raw-protocol): v2 — §4.4 extensões Tipo B + §4.5 rastreabilidade dual-layer + §8.2 exemplo HC 315.220 | 2026-04-22 |
+| 6927e9a | docs(raw-protocol): fix cosmético §8.2 — recovery do commit via git commit -F tempfile | 2026-04-22 |
+| 3632faa | raw(B): HC 315.220/STJ piloto — PDF via LFS + sidecar v1.2 §4.4 + fonte_confiavel pbm_s | 2026-04-22 |
+| (piloto RE 1.301.250) | raw(B): RE 1.301.250/STF snapshot de tramitação — 7 HTMLs via LFS + sidecar §4.4.1 + watchlist ativa | 2026-04-23 |
+| 68353a7 | chore(raw): remover raw/A-normativas/*.html para reingest LFS prospectivo (Calibração #3) | 2026-04-24 |
+| **3081647** | **feat(raw/A): FASE 2 reingest — 10 HTMLs Planalto sob LFS prospectivo (cadeia de custódia por agente MP)** | **2026-04-24** |
 
 ---
 
 *Documento gerado em 2026-04-22. Atualizado para v1.2 em 2026-04-22.*
+*Fase 0.5 fechada para A-normativas em 2026-04-24 (commit 3081647 + `_AGENTS/validation-reports/2026-04-24-etapa05.csv`).*
 *Atualizar status das fases a cada conclusão.*
