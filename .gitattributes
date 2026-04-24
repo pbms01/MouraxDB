@@ -42,6 +42,15 @@ raw/**/*.yml   text eol=lf
 # _AGENTS/raw-protocol.md §8.5.
 raw/B-jurisprudencia/**/*.html  filter=lfs diff=lfs merge=lfs -text
 
+# --- Snapshots HTML em raw/A-normativas/ -> Git LFS ---
+# Calibracao #3 (2026-04-23): regime LFS PROSPECTIVO adotado apos descoberta
+# empirica de que eol=lf + text=auto suspende fidelidade byte-a-byte em
+# qualquer rebuild (smudge filter reescreve worktree). Este pattern deve
+# estar ativo ANTES do primeiro 'git add' dos HTMLs re-baixados. Retroativo
+# nao funciona (lfs migrate captura blobs ja normalizados).
+# Documentacao: _AGENTS/AGENTS.md Calibracao #3; _AGENTS/raw-protocol.md §8.6.
+raw/A-normativas/**/*.html  filter=lfs diff=lfs merge=lfs -text
+
 # ─── Texto explícito fora de raw/ (LF no objeto Git) ───
 *.md            text eol=lf
 *.yaml          text eol=lf
