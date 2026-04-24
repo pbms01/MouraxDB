@@ -368,6 +368,71 @@ Retroativamente, nenhuma ferramenta de history rewrite (`lfs migrate import`, BF
 
 **Protocolo de registro de calibrações futuras:** cada nova calibração (adição/remoção de padrão, ajuste de threshold, nova rede de segurança) deve ser registrada nesta subseção com (a) data, (b) commit, (c) evidência empírica que motivou a decisão, (d) trade-off aceito, (e) regra metódica geral que emerge (se houver). Esta subseção funciona como cadeia de custódia epistemológica do validador — parte integrante da disciplina de fidelidade do pipeline.
 
+**Calibração #4 — FASE 2 reingest prospectivo LFS valida a recomendação da Calibração #3; schema v1.2 tolera heterogeneidade rica/simplificada; sentinela `"nao-capturado"` passa por teste de campo; anomalia material lei-14188-2021 isolada (2026-04-24, commit 3081647).**
+
+Três observações simultâneas encerram a Fase 0.5 para A-normativas, com consequências operacionais distintas.
+
+**(a) Regime LFS prospectivo funciona integralmente — `sha256(disco) == OID(LFS) == sidecar` em 10/10.**
+
+O experimento de regime retroativo (`git lfs migrate import`, Calibração #3) havia refutado a tentativa de remediação do bug `eol=lf + text=auto` sobre blobs já gravados. A FASE 2 (commit 3081647) aplicou o regime prospectivo canônico: (i) commit de remoção dos HTMLs textuais (68353a7) para limpar o tracking; (ii) `.gitattributes` com `raw/**/*.html filter=lfs diff=lfs merge=lfs -text` ativo antes do re-`git add`; (iii) coleta fresca de 10 HTMLs via `Invoke-WebRequest` com `$r.RawContentStream.ToArray()` para snapshot byte-a-byte; (iv) sidecares atualizados com o sha256 dos bytes coletados; (v) `git add` inaugural roteando o conteúdo pelo `lfs clean` antes de qualquer text conversion.
+
+Resultado empírico: `validate_raw_05.py` rodou sobre os 10 e emitiu `ok=10 warning=0 blocked=0`, com `sha256_modo=direto` em todos — ou seja, o sha256 declarado em sidecar bate com o sha256 dos bytes em disco pós-smudge em um clone fresh Windows-nativo. O OID LFS (pointer em `.git/lfs/objects/`) é idêntico ao sha256 do sidecar — como `filter=lfs` usa sha256 como esquema de ID, isso verifica automaticamente a integridade em toda travessia (coleta HTTP → disco origem → `lfs clean` → push → origin → pull/clone fresh + smudge).
+
+Trade-off aceito: qualquer nova source_type com invariante byte-a-byte declarada em sidecar (HTMLs de tribunais, XMLs estruturados do CNJ DataLake em contexto forense, JSONs de peritagem digital) DEVE ter seu pattern adicionado a `.gitattributes` com `filter=lfs diff=lfs merge=lfs -text` ANTES do primeiro `git add` do primeiro arquivo desse tipo. Retroatividade é refutada por construção (Calibração #3). A disciplina recai sobre o analista: auditar `.gitattributes` antes de coletar, nunca depois.
+
+Regra metódica que se consolida: **"auditoria de tubulação antes de auditoria de conteúdo"**. O estado do `.gitattributes` é pré-condição forense da cadeia de custódia, não detalhe de implementação. O reviewer que recebe um PR de nova source_type deve checar primeiro o patch do `.gitattributes`, só depois o conteúdo.
+
+**(b) Schema v1.2 tolera heterogeneidade rica/simplificada + sentinela sem carve-out técnico.**
+
+Observação não planejada: dos 10 sidecares atualizados em FASE 2, nove usam a forma simplificada (`etag_http` e `last_modified_http` como chaves na raiz) e um usa a forma rica (`http_response.etag`, `http_response.last_modified` sob bloco `http_response:`). Ambos passaram o validador sem qualquer ajuste de código. Heterogeneidade convive. Além disso, um dos sidecares usa a sentinela `"nao-capturado-2026-04-24"` em vez de valor HTTP real — o validador aceita como string opcional, não bloqueia.
+
+A interpretação correta disso não é "o validador está tolerante demais, precisa apertar". É: **o schema v1.2 foi desenhado com campos extensíveis por tipo (§4.4 / §4.4.1 / §4.5) e com degradação graciosa de captura HTTP — e estas duas propriedades sustentam a operação do agente MP em campo sem quebra de compatibilidade do pipeline**. Se a próxima coleta usar headers HTTP indisponíveis (proxy institucional que suprime cabeçalhos, servidor que não responde ETag), a sentinela mantém o sidecar schema-válido e o analista não precisa decidir se "pula o campo" ou "inventa valor" — a política está embutida no schema.
+
+Formalização como v1.2-a (proposta): documentar em `_AGENTS/raw-protocol.md` que (i) a forma rica é preferida quando disponível, (ii) a forma simplificada é aceita em legado, (iii) a sentinela `"nao-capturado-YYYY-MM-DD"` é o protocolo canônico para campos HTTP que o servidor não forneceu na coleta. Isso é ato documental, não técnico — o validador já aceita todos os três formatos sem alteração.
+
+Trade-off aceito: com sentinela aceita, perde-se validação estrutural de formato ISO-8601 / RFC-7232 em timestamps HTTP. O custo é registrar como "ruído controlado" em auditoria externa — se um `nao-capturado-*` aparece, o auditor sabe que o agente MP deliberadamente escolheu essa string em vez de inventar valor, o que é preferível forensicamente.
+
+Regra metódica: **"robustez operacional > pureza sintática em campos não-fundamentais"**. Aplicável a todo campo de sidecar que dependa de terceiros (ETag/Last-Modified do servidor, relator do acórdão em sistema legado que não expõe, número de processo em peça escaneada sem metadado). Fundamentais (`sha256`, `baixado_em`, `baixado_por`, `arquivo`, `tipo`, `url_origem`) permanecem sem sentinela — falha obrigatória, não degradação.
+
+**(c) Anomalia material isolada em `lei-14188-2021.html`: delta_bytes −1.559 (−8,53%).**
+
+9 dos 10 HTMLs tiveram `delta_bytes == 0` entre coleta anterior (2026-04-23) e coleta FASE 2 (2026-04-24), com `sha256` divergente. Isso valida a decisão arquitetural de 2026-04-24: rotação F5 WAF/CSPM por request reescreve nonce e token sem alterar o conteúdo editorial — invariante byte-a-byte com a fonte é impossível, mas o delta de tamanho é zero.
+
+A exceção — lei-14188-2021 — é o único caso com delta não trivial. Redução de 1.559 bytes é grande demais para ser atribuída a rotação F5 (faixa observada: 128–1.233 B em injeções, e sempre adição, não remoção). Hipótese operacional registrada no sidecar: recompilação editorial do Planalto entre coletas. Esse arquivo já era o "caso de injeção assimétrica" no diagnóstico original (backup continha bloco CSPM de 1.233 B, fresh não continha) — provavelmente a gestão AJ homogeneizou o template CSPM nesta lei entre datas de coleta.
+
+**Importa para a Hipótese v3 (bug ordinal)?** Em princípio, não: a anomalia é no envelope de template CSPM / script F5, não na redação normativa. Mas o diff só pode ser conclusivo após conversão HTML→MD canônica de ambas as versões, via `iconv -f WINDOWS-1252` + strip de scripts. **Plano de investigação** (registrado no sidecar `reingest_2026_04_24.anomalia_recompilacao.investigar_em_etapa_1: true` e em `PLANO-INGESTAO.md §Reingest-2026-04-23 Fase 2`):
+
+1. Quando Etapa 1 for acionada, converter ambas as versões para `inbox/<id>.md`.
+2. Executar `diff` semântico sobre o markdown canônico.
+3. Se delta textual ≈ 0 (apenas remoção de template/script CSPM), consolida o modelo "F5 como causa única da divergência byte-a-byte".
+4. Se delta textual > 0, é o primeiro data point de alteração material sem publicação de ato normativo alterador — exige checagem no DOU e, se confirmado, virar entrada na Hipótese v3 como "rebaseline editorial não sinalizada".
+
+Regra metódica: **"toda anomalia numérica registrada em sidecar passa o bastão para Etapa 1 via campo flag, não fica em limbo"**. O protocolo `anomalia_recompilacao` + `investigar_em_etapa_1: true` é o canal canônico para esse handoff. A investigação é acionada pela Etapa 1, nunca pela Etapa 0.5 (que é apenas validação bloqueante de integridade, não análise editorial).
+
+**Ganho lateral para Hipótese v3 (bug ordinal).** A FASE 2 coletou CF/1988 e CPP/1941 em versão fresca. Comparar o `taxa_bug` medido em 2026-04-22 com o medido sobre os novos arquivos (quando Etapa 1 produzir o markdown canônico) pode dar um novo tipo de data point: **"o mesmo artefato ingerido em datas diferentes mantém a mesma estratificação editorial ou há homogeneização silenciosa?"**. Se as taxas baterem (CF=0%, CPP≈30,4%, CP≈6,5%), v3 ganha suporte adicional — estratificação é propriedade persistente do documento compilado, não artefato do instante de coleta. Se divergirem significativamente, há recompilação em massa (alvo de falseamento #4 da v3) e v3 precisa ajustar. Acionar esta comparação quando Etapa 1 rodar.
+
+## CADEIA DE CUSTÓDIA — Decisão arquitetural 2026-04-24
+
+**Contexto**: diagnóstico da Fase 1 Reingest identificou F5 Advanced WAF/CSPM
+no Planalto, injetando nonce `f5avr<timestamp>` + token 128 B por request.
+Reprodutibilidade byte-a-byte com a fonte é impossível enquanto o F5 estiver
+ativo.
+
+**Decisão**: a cadeia de custódia de `raw/` ancora-se no ato de coleta
+documentado por agente público do MP, não em reprodutibilidade perpétua.
+Sidecar v1.2 (`sha256` + `etag_http` + `last_modified_http` + `baixado_em`
++ `baixado_por`) é a unidade atestada de captura.
+
+**Fundamento**: CPP 158-A (Lei 13.964/19); LC 75/93 art. 8º II; Lei 8.625/93
+art. 26 I; CNJ Res. 615/2025; Lei 9.610/98 art. 8º IV.
+
+**Implicação sobre Hipótese v3 (bug ordinal)**: comparações editoriais
+entre coletas em datas diferentes devem operar sobre `inbox/` (markdown
+canônico) ou diff semântico, não sobre `raw/` HTML bruto — o sinal F5
+contamina a métrica byte-a-byte.
+
+**Detalhamento completo**: `PLANO-INGESTAO.md §Reingest-2026-04-23`.
+
 ## REFERÊNCIAS INTERNAS
 - Protocolo da landing zone raw/ (sidecar .source.yaml + pipeline): _AGENTS\raw-protocol.md
 - Watchlist de casos pendentes de julgamento (governança B em tramitação): watchlist\README.md
