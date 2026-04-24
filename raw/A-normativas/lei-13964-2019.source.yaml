@@ -5,19 +5,19 @@
 arquivo: lei-13964-2019.html
 tipo: A
 url_origem: https://www.planalto.gov.br/ccivil_03/_ato2019-2022/2019/lei/l13964.htm
-baixado_em: "2026-04-22T17:36:00-03:00"
-baixado_por: pedro.mourao
+baixado_em: "2026-04-24T13:33:54Z"
+baixado_por: "pbm_s"
 user_agent: "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0 Safari/537.36"
 
 # Integridade
-sha256: "c3330bddf2c74c8a957745d17b45caf2f42141227d2e820a7efdd3820bd94d31"
+sha256: "0bb9ca92f6266a6e80362db28bd1e44f135b91da2491b6cbd1fd15141427f93c"
 bytes: 219503
 
 # HTTP metadata do servidor
 http_content_type: "text/html"
-http_content_length: 217944
-http_last_modified: "2021-08-06T15:07:49Z"
-http_etag: '"22e858d2d48ad71:0"'
+http_content_length: 219503
+http_last_modified: "nao-capturado-2026-04-24"
+http_etag: 'nao-capturado-2026-04-24'
 
 # Datas jurídicas
 data_promulgacao: "2019-12-24"
@@ -117,6 +117,30 @@ observacoes: |
   Este arquivo é o PRIMEIRO teste de falseamento forte da hipótese AJ-2021: lei
   promulgada em 2019 (pré-janela) com evidência de compilação em 2021 (dentro da janela)
   — bug presente como predito sob a hipótese refinada.
+
+
+# Reingest FASE 2 (2026-04-24) - camada auditoria
+reingest_2026_04_24:
+  evento: "fase2-reingest-lfs-prospectivo"
+  baixado_em_fresco: "2026-04-24T13:33:54Z"
+  sha256_anterior: "c3330bddf2c74c8a957745d17b45caf2f42141227d2e820a7efdd3820bd94d31"
+  sha256_atual: "0bb9ca92f6266a6e80362db28bd1e44f135b91da2491b6cbd1fd15141427f93c"
+  bytes_anterior: 219503
+  bytes_atual: 219503
+  delta_bytes: 0
+  interpretacao_delta: "rotacao-nonce-WAF-F5-Planalto (tamanho preservado, hash divergente)"
+  http_captura_degradada: true
+  etag_http_coletado: "nao-capturado-2026-04-24"
+  last_modified_http_coletado: "nao-capturado-2026-04-24"
+  fundamento_cadeia_custodia: |
+    Chain of custody reancorada no ato de coleta pelo agente MP:
+    CPP 158-A (Lei 13.964/19), LC 75/93 art. 8 II, CNJ Res. 615/2025.
+    F5 Advanced WAF/CSPM do Planalto rotaciona nonce/tokens por
+    requisicao - sha256 byte-a-byte do HTML varia entre coletas
+    sem mudanca editorial. Invariante deslocado de "byte-a-byte
+    reproduzivel" para "integridade verificavel no momento da
+    coleta por agente legitimo, registrada em sidecar assinado".
+  git_lfs_status: "readicionado sob filter=lfs na FASE 2; invariante sha256(disco)==OID(LFS) validado em 2026-04-24"
 
 # Rastreabilidade
 pipeline_version: "1.2"

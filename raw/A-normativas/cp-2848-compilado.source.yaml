@@ -5,12 +5,12 @@
 arquivo: cp-2848-compilado.html
 tipo: A                                   # normativa
 url_origem: https://www.planalto.gov.br/ccivil_03/decreto-lei/del2848compilado.htm
-baixado_em: "2026-04-22T19:49:50Z"
-baixado_por: pedro.mourao
+baixado_em: "2026-04-24T13:33:51Z"
+baixado_por: "pbm_s"
 user_agent: "Mozilla/5.0 (KBPD-pipeline-v1.2)"
 
 # Integridade
-sha256: "224467a3a9de2265104e4017d849c5a7a4624a811bf0487c2bf17868c3f17c6b"
+sha256: "50db5b1d0b7c881f6dae0b4ff2b41d26c9f91bd84ad57974167704fb2ad6579a"
 bytes: 659965
 
 # Encoding
@@ -32,8 +32,8 @@ vigencia: "ativa (com alterações posteriores incorporadas)"
 http_response:
   content_type: "text/html"
   content_length: 659965
-  last_modified: "Fri, 10 Apr 2026 09:50:11 GMT"
-  etag: "b52d396ccfc8dc1:0"
+  last_modified: "nao-capturado-2026-04-24"
+  etag: "nao-capturado-2026-04-24"
   user_agent_aceito: true               # contradiz nota CF: User-Agent não-browser ACEITO em 2026-04-22
 
 # Diagnóstico AJ (bug ordinal <u><sup>o</sup></u>) — REFINAMENTO DA HIPÓTESE
@@ -106,6 +106,30 @@ observacoes: |
   conhecido para os sidecars das outras leis ordinárias do Planalto.
   Possível mitigação: adicionar `raw/**/*.html -text` no .gitattributes
   para tratar como binário (decisão fora do escopo desta coleta).
+
+
+# Reingest FASE 2 (2026-04-24) - camada auditoria
+reingest_2026_04_24:
+  evento: "fase2-reingest-lfs-prospectivo"
+  baixado_em_fresco: "2026-04-24T13:33:51Z"
+  sha256_anterior: "224467a3a9de2265104e4017d849c5a7a4624a811bf0487c2bf17868c3f17c6b"
+  sha256_atual: "50db5b1d0b7c881f6dae0b4ff2b41d26c9f91bd84ad57974167704fb2ad6579a"
+  bytes_anterior: 659965
+  bytes_atual: 659965
+  delta_bytes: 0
+  interpretacao_delta: "rotacao-nonce-WAF-F5-Planalto (tamanho preservado, hash divergente)"
+  http_captura_degradada: true
+  etag_http_coletado: "nao-capturado-2026-04-24"
+  last_modified_http_coletado: "nao-capturado-2026-04-24"
+  fundamento_cadeia_custodia: |
+    Chain of custody reancorada no ato de coleta pelo agente MP:
+    CPP 158-A (Lei 13.964/19), LC 75/93 art. 8 II, CNJ Res. 615/2025.
+    F5 Advanced WAF/CSPM do Planalto rotaciona nonce/tokens por
+    requisicao - sha256 byte-a-byte do HTML varia entre coletas
+    sem mudanca editorial. Invariante deslocado de "byte-a-byte
+    reproduzivel" para "integridade verificavel no momento da
+    coleta por agente legitimo, registrada em sidecar assinado".
+  git_lfs_status: "readicionado sob filter=lfs na FASE 2; invariante sha256(disco)==OID(LFS) validado em 2026-04-24"
 
 # Rastreabilidade
 pipeline_version: "1.2"

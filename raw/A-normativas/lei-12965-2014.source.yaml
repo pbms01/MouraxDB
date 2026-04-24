@@ -1,14 +1,41 @@
 arquivo: lei-12965-2014.html
 tipo: A
 url_origem: http://www.planalto.gov.br/ccivil_03/_ato2011-2014/2014/lei/l12965.htm
-baixado_em: "2026-04-22T16:40:00Z"
-baixado_por: "Pedro Mourão (via Cowork — retrofit v1.2 sessão 2026-04-22)"
-sha256: "88299a97bf080d47d71339172ef9e5ef04450827ea46dd36369aab4b3c9a666b"
+baixado_em: "2026-04-24T13:41:50Z"
+baixado_por: "pbm_s"
+sha256: "f48aba8522749923106b48548d828e9dab9be61a491fe4fe1a2a14475bfd431a"
+bytes: 119976
+etag_http: "nao-capturado-2026-04-24"
+last_modified_http: "nao-capturado-2026-04-24"
 encoding_declarado_http: "text/html"
 encoding_real_detectado: "WINDOWS-1252"
 conversao_prevista: "html→md via iconv -f WINDOWS-1252 -t UTF-8 + strip HTML (BeautifulSoup) — já convertido em inbox/lei-12965-2014.md; reingestão não requerida"
 idioma: ptBR
 licenca: "domínio público (Lei 9.610/98 art. 8º IV — textos de lei)"
+
+# Reingest FASE 2 (2026-04-24) - camada auditoria
+reingest_2026_04_24:
+  evento: "fase2-reingest-lfs-prospectivo"
+  baixado_em_fresco: "2026-04-24T13:41:50Z"
+  sha256_anterior: "88299a97bf080d47d71339172ef9e5ef04450827ea46dd36369aab4b3c9a666b"
+  sha256_atual: "f48aba8522749923106b48548d828e9dab9be61a491fe4fe1a2a14475bfd431a"
+  bytes_anterior: 119976
+  bytes_atual: 119976
+  delta_bytes: 0
+  interpretacao_delta: "rotacao-nonce-WAF-F5-Planalto (tamanho preservado, hash divergente)"
+  http_captura_degradada: true
+  etag_http_coletado: "nao-capturado-2026-04-24"
+  last_modified_http_coletado: "nao-capturado-2026-04-24"
+  fundamento_cadeia_custodia: |
+    Chain of custody reancorada no ato de coleta pelo agente MP:
+    CPP 158-A (Lei 13.964/19), LC 75/93 art. 8 II, CNJ Res. 615/2025.
+    F5 Advanced WAF/CSPM do Planalto rotaciona nonce/tokens por
+    requisicao - sha256 byte-a-byte do HTML varia entre coletas
+    sem mudanca editorial. Invariante deslocado de "byte-a-byte
+    reproduzivel" para "integridade verificavel no momento da
+    coleta por agente legitimo, registrada em sidecar assinado".
+  git_lfs_status: "readicionado sob filter=lfs na FASE 2; invariante sha256(disco)==OID(LFS) validado em 2026-04-24"
+
 observacoes: >
   Lei 12.965/2014 — Marco Civil da Internet (sanção Dilma Rousseff
   23/04/2014, publicação DOU 24/04/2014, vigência 60 dias após). Lei

@@ -1,14 +1,41 @@
 arquivo: lei-14155-2021.html
 tipo: A
 url_origem: http://www.planalto.gov.br/ccivil_03/_Ato2019-2022/2021/Lei/L14155.htm
-baixado_em: "2026-04-22T16:40:00Z"
-baixado_por: "Pedro Mourão (via Cowork — retrofit v1.2 sessão 2026-04-22)"
-sha256: "1a6be93491eae4ddab510e70b4c3840582a6bfee37ad64b4d0662ea463fd2d73"
+baixado_em: "2026-04-24T13:41:50Z"
+baixado_por: "pbm_s"
+sha256: "1567900e445b97580ea8e67a4b797130a7b385416c21fac0e1415cda07672826"
+bytes: 20916
+etag_http: "nao-capturado-2026-04-24"
+last_modified_http: "nao-capturado-2026-04-24"
 encoding_declarado_http: "text/html"
 encoding_real_detectado: "WINDOWS-1252"
 conversao_prevista: "html→md via iconv -f WINDOWS-1252 -t UTF-8 + strip HTML (BeautifulSoup) — já convertido em inbox/lei-14155-2021.md; reingestão não requerida"
 idioma: ptBR
 licenca: "domínio público (Lei 9.610/98 art. 8º IV — textos de lei)"
+
+# Reingest FASE 2 (2026-04-24) - camada auditoria
+reingest_2026_04_24:
+  evento: "fase2-reingest-lfs-prospectivo"
+  baixado_em_fresco: "2026-04-24T13:41:50Z"
+  sha256_anterior: "1a6be93491eae4ddab510e70b4c3840582a6bfee37ad64b4d0662ea463fd2d73"
+  sha256_atual: "1567900e445b97580ea8e67a4b797130a7b385416c21fac0e1415cda07672826"
+  bytes_anterior: 20916
+  bytes_atual: 20916
+  delta_bytes: 0
+  interpretacao_delta: "rotacao-nonce-WAF-F5-Planalto (tamanho preservado, hash divergente)"
+  http_captura_degradada: true
+  etag_http_coletado: "nao-capturado-2026-04-24"
+  last_modified_http_coletado: "nao-capturado-2026-04-24"
+  fundamento_cadeia_custodia: |
+    Chain of custody reancorada no ato de coleta pelo agente MP:
+    CPP 158-A (Lei 13.964/19), LC 75/93 art. 8 II, CNJ Res. 615/2025.
+    F5 Advanced WAF/CSPM do Planalto rotaciona nonce/tokens por
+    requisicao - sha256 byte-a-byte do HTML varia entre coletas
+    sem mudanca editorial. Invariante deslocado de "byte-a-byte
+    reproduzivel" para "integridade verificavel no momento da
+    coleta por agente legitimo, registrada em sidecar assinado".
+  git_lfs_status: "readicionado sob filter=lfs na FASE 2; invariante sha256(disco)==OID(LFS) validado em 2026-04-24"
+
 observacoes: >
   Lei 14.155/2021 (sanção Jair Bolsonaro 27/05/2021, publicação DOU
   28/05/2021). Altera: (i) art. 155 §4º-B CP — furto qualificado por

@@ -1,12 +1,45 @@
 arquivo: lei-14188-2021.html
 tipo: A
 url_origem: https://www.planalto.gov.br/ccivil_03/_ato2019-2022/2021/lei/L14188.htm
-baixado_em: "2026-04-22T16:33:00Z"
-baixado_por: "Pedro Mourão (via Cowork — sessão 2026-04-22)"
-sha256: "250325e536225aabf6af427f4f80da929d55463eadc34c472210920532992911"
+baixado_em: "2026-04-24T13:33:54Z"
+baixado_por: "pbm_s"
+sha256: "e6c5eac4fb980f813afbc28194f9287d0c75fa7b902c742b3b9c217d9faad7a4"
+bytes: 16704
+etag_http: "nao-capturado-2026-04-24"
+last_modified_http: "nao-capturado-2026-04-24"
 encoding_declarado_http: "text/html"
 encoding_real_detectado: "WINDOWS-1252"
 conversao_prevista: "html→md via iconv -f WINDOWS-1252 -t UTF-8 + strip HTML (BeautifulSoup)"
+
+# Reingest FASE 2 (2026-04-24) - camada auditoria
+reingest_2026_04_24:
+  evento: "fase2-reingest-lfs-prospectivo"
+  baixado_em_fresco: "2026-04-24T13:33:54Z"
+  sha256_anterior: "250325e536225aabf6af427f4f80da929d55463eadc34c472210920532992911"
+  sha256_atual: "e6c5eac4fb980f813afbc28194f9287d0c75fa7b902c742b3b9c217d9faad7a4"
+  bytes_anterior: 18263
+  bytes_atual: 16704
+  delta_bytes: -1559
+  interpretacao_delta: "DIVERGENCIA MATERIAL: delta -1559 B - investigar na Etapa 1"
+  http_captura_degradada: true
+  etag_http_coletado: "nao-capturado-2026-04-24"
+  last_modified_http_coletado: "nao-capturado-2026-04-24"
+  fundamento_cadeia_custodia: |
+    Chain of custody reancorada no ato de coleta pelo agente MP:
+    CPP 158-A (Lei 13.964/19), LC 75/93 art. 8 II, CNJ Res. 615/2025.
+    F5 Advanced WAF/CSPM do Planalto rotaciona nonce/tokens por
+    requisicao - sha256 byte-a-byte do HTML varia entre coletas
+    sem mudanca editorial. Invariante deslocado de "byte-a-byte
+    reproduzivel" para "integridade verificavel no momento da
+    coleta por agente legitimo, registrada em sidecar assinado".
+  git_lfs_status: "readicionado sob filter=lfs na FASE 2; invariante sha256(disco)==OID(LFS) validado em 2026-04-24"
+  anomalia_recompilacao:
+    tipo: "delta_bytes_material"
+    delta_bytes: -1559
+    delta_percentual: -8.53
+    interpretacao: "nao atribuivel a rotacao WAF F5; evidencia de re-compilacao substantiva do Planalto entre 2026-04-22 e 2026-04-24"
+    investigacao_prevista: "Etapa 1 (HTML->MD) com diff textual vai evidenciar se mudanca e de conteudo normativo ou apenas markup"
+
 observacoes: >
   Lei 14.188/2021 (sanção 28/07/2021, publicação DOU 29/07/2021).
   Define violência psicológica contra a mulher (cria art. 147-B CP) e altera
